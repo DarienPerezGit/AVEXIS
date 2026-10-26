@@ -2,9 +2,9 @@
 
 Issues and specs for this repo live as GitHub issues. Use the `gh` CLI for all operations.
 
-## Setup note
+## Repository
 
-This directory is not yet a git clone and has no GitHub remote. Until one exists, `gh` cannot infer the repo — pass `--repo <owner>/<repo>` explicitly, or create the remote first.
+`DarienPerezGit/AVEXIS` — `origin` points at it, so `gh` infers the repo automatically from inside the clone.
 
 ## Conventions
 
