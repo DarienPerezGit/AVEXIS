@@ -5,6 +5,7 @@ import { Error as MongooseError } from 'mongoose';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from './app.js';
+import { AppError } from './errors/app-error.js';
 import { Cliente } from './models/cliente.model.js';
 
 let logDir: string;
@@ -74,6 +75,13 @@ describe('error handling', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('responds with the status, code and message of an AppError', async () => {
+    const res = await request(appThatFailsWith(new AppError(403, 'FORBIDDEN', 'Not allowed'))).get('/boom');
+
+    expect(res.status).toBe(403);
+    expect(res.body).toEqual({ error: { code: 'FORBIDDEN', message: 'Not allowed' } });
   });
 
   it('responds 404 as JSON for an unknown route', async () => {

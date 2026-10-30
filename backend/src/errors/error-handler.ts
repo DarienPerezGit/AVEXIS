@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler } from 'express';
 import { Error as MongooseError } from 'mongoose';
 import type { Logger } from 'pino';
+import { AppError } from './app-error.js';
 
 interface ErrorBody {
   status: number;
@@ -9,6 +10,9 @@ interface ErrorBody {
 }
 
 function toErrorBody(err: unknown): ErrorBody {
+  if (err instanceof AppError) {
+    return { status: err.status, code: err.code, message: err.message };
+  }
   if (err instanceof MongooseError.ValidationError) {
     return { status: 400, code: 'VALIDATION_ERROR', message: err.message };
   }
