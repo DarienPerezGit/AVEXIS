@@ -22,3 +22,8 @@ logs/
 .vscode/
 .DS_Store
 Thumbs.db
+# Local Pi runtime state
+.atl/
+
+# Any credentials file (e.g. Atlas download)
+*.env
