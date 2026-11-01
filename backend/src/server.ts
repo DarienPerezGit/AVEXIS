@@ -5,6 +5,6 @@ import { createApp } from './app.js';
 await connectDatabase(env.mongodbUri);
 console.log('MongoDB connected');
 
-createApp({ logDir: env.logDir }).listen(env.port, () => {
+createApp({ logDir: env.logDir, auth: env.auth, corsOrigins: env.corsOrigins }).listen(env.port, () => {
   console.log(`API listening on http://localhost:${env.port}`);
 });
