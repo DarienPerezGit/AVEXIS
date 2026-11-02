@@ -4,6 +4,8 @@ export const MOVIMIENTO_TIPOS = [
   'ESCRITO',
   'RESOLUCION',
   'NOTIFICACION',
+  'CEDULA',
+  'OFICIO',
   'AUDIENCIA',
   'OTRO',
 ] as const

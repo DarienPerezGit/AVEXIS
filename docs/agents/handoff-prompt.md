@@ -18,9 +18,11 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 | `1746d57`, `1e3cf6d` | #9 (closed): JSON error handler, Mongoose error mapping, `AppError`, Pino `error.log` |
 | `5cd62b5` | Handoff refresh |
 | `ee9a07b` | #3 (closed): auth, RBAC and user management |
+| (this commit) | #14 / #10 (closed): REST endpoints, permission matrix, Zod validation, pagination |
 
-- Suite: 82 tests green (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
-- Error contract: `{ error: { code, message } }` via `AppError`.
+- Suite: 134 tests green (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
+- Error contract: `{ error: { code, message, details? } }` via `AppError`; `details: [{ path, message }]` only on `VALIDATION_ERROR`.
+- REST design: `docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md`. The permission matrix lives only in `src/access/policies.ts` (`expedientesVisibles`, `agendaVisible`, `findExpedienteAccesible`, `findExpedienteConAccesoEconomico`, `findAudienciaAccesible`, `abogadoParaAlta`/`abogadoParaCambio`, `assertAbogadoActivo`). Validate input with `parse(schema, input)` from `src/http/validation.ts`. Check order: auth, role, 404, 403, 400. Tests: `crearEstudio()` gives one logged-in agent per matrix cell, plus `crearCliente`, `crearExpediente`.
 - Auth design: `docs/adr/0001-autenticacion-y-autorizacion.md`. Domain terms: `GLOSSARY.md` (titular, procuracion...). Key points:
   - JWT `{ sub, ver }` in an `httpOnly` + `Secure` + `SameSite=Strict` session cookie, 8 h, no refresh. `authenticate` reloads the user each request; `ver` (`versionSesion`) bumps on password change/reset and ends other sessions.
   - Roles `ABOGADO` / `ASISTENTE` + `esTitular` (ABOGADO only). Only the titular manages users (`/api/usuarios`); no public sign-up. New/reset users get `debeCambiarPassword` (403 `PASSWORD_CHANGE_REQUIRED` except `/me` and `/me/password`).
@@ -29,14 +31,8 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Skills: the user's skills in `C:\Users\PC\.agents\skills` are linked as junctions into `C:\Users\PC\.claude\skills` (Claude Code only reads `~/.claude/skills` and `<repo>/.claude/skills`). The user's `code-review` collides with a built-in; `/review` is the same skill.
 
 ### Next steps, in order
-1. **#10 REST endpoints** with the permission matrix agreed in #3 (ADR 0001, "Consequences"):
-   - Titular sees all expedientes/agendas; ABOGADO only own (`abogadoResponsableId` / `Audiencia.abogadoId`); ASISTENTE sees all expedientes.
-   - ABOGADO creates expedientes with `abogadoResponsableId = req.usuario.id` (ignore body); titular creates for anyone and reassigns; ASISTENTE does not create/edit expedientes.
-   - Movimientos and audiencias: titular all, ABOGADO own expedientes, ASISTENTE any. Clientes: all roles.
-   - Honorarios/pagos: responsible ABOGADO + titular only; ASISTENTE no access.
-   - No hard deletes: usuarios deactivate, expedientes ARCHIVADO, audiencias CANCELADA (PATCH); movimientos/honorarios immutable. Exception: `DELETE /clientes/:id` titular only, 409 if it has expedientes.
-   - Plus Zod validation, pagination and filters. Read with `gh issue view 10`, confirm TDD seams with the user before tests.
-2. Then #11 deadlines alert, #7 seed (must create the first titular with `debeCambiarPassword: false`), #5 Swagger, #8 coverage, #12 README, #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
+1. #11 deadlines alert: reuse `agendaVisible` from `src/access/policies.ts`.
+2. #7 seed (must create the first titular with `debeCambiarPassword: false`), #5 Swagger, #8 coverage, #12 README, #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
 3. Housekeeping: update GitHub dependency edges and map issue #1.
 4. At the end: rotate the Atlas DB password and use a non-admin user.
 
@@ -46,6 +42,8 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Always run `npm`/`npx` inside `backend/`. Never `npm install` from the repo root or `C:\Users\PC` (that `package.json` belongs to another project; don't touch it).
 - The PDF filename has decomposed accents; copy it to the scratchpad with an ASCII name to read it.
 - Engram needs `project=tp-final`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`.
+- `vitest.config.ts` raises the test timeout to 30 s: every domain test logs in four users through bcrypt cost 12 while files run in parallel.
+- Heredocs through the Bash tool can collapse `\\` into `\`; write files with regexes or escaped quotes using the Write/Edit tools.
 - `backend/.env` is local and git-ignored. The user should set `JWT_EXPIRES_IN=8h` there. Never write the Atlas password anywhere.
 
 ### User preferences
@@ -58,13 +56,13 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 ```text
 Continua el desarrollo del backend de AVEXIS (TP Final Programacion III, UTN). Responde en espanol, corto, una pregunta a la vez; codigo, commits y docs en ingles. Commits convencionales, sin atribucion de IA. Modo pedagogico: tengo que defender cada decision en el oral, asi que en cada pregunta de diseno explicame el concepto, las opciones, tu recomendacion y una linea "para defenderla".
 
-Contexto: lee docs/agents/handoff-prompt.md (seccion 1), docs/adr/0001-autenticacion-y-autorizacion.md y GLOSSARY.md, y las observaciones de Engram handoff/avexis-backend-mvp y decision/avexis-auth-design (mem_search con project=tp-final). El PDF del enunciado en la raiz es la especificacion.
+Contexto: lee docs/agents/handoff-prompt.md (seccion 1), docs/adr/0001-autenticacion-y-autorizacion.md, docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md y GLOSSARY.md, y Engram handoff/avexis-backend-mvp (mem_search con project=tp-final). El PDF del enunciado en la raiz es la especificacion.
 
-Estado: modelos, errores (#9) y autenticacion/RBAC (#3) terminados y publicados (ee9a07b), 82 tests en verde.
+Estado: modelos, errores (#9), autenticacion/RBAC (#3) y endpoints REST (#14/#10) terminados y publicados, 134 tests en verde.
 
 Haz esto, en orden:
-1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test (esperado: 82 tests verdes). gh auth status debe mostrar DarienPerezGit activo.
-2. Toma "Endpoints REST" (#10): leelo con gh issue view 10, reclamalo con gh issue edit 10 --add-assignee "@me". Aplica la matriz de permisos acordada en #3 (seccion 1 del handoff). Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
+1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test (esperado: 134 tests verdes). gh auth status debe mostrar DarienPerezGit activo.
+2. Toma la alerta de vencimientos (#11): leela con gh issue view 11 y reclamala. Reutiliza agendaVisible de src/access/policies.ts. Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
 3. Al terminar: typecheck, suite completa, code-review, commit, actualizar Engram y este handoff.
 
 Reglas: corre tests, npm install, git y gh sin sandbox. npm/npx siempre dentro de backend\, nunca npm install desde la raiz. En PowerShell cita "@me". Nunca escribas la password de Atlas. No toques C:\Users\PC\package.json.

@@ -71,7 +71,8 @@ The system handles confidential client data, so authentication was designed as a
 ## Consequences
 
 - One database read per authenticated request. Negligible at this scale.
-- A fresh install has no users until the seed script (#7) creates the first titular.- The per-case permission matrix (titular sees everything; a lawyer sees and creates only their own cases; honorarios are limited to the responsible lawyer and the titular; no hard deletes except a client without cases) is enforced in the REST endpoints ticket, using `authorize` and `req.usuario`.
+- A fresh install has no users until the seed script (#7) creates the first titular.
+- The per-case permission matrix (titular sees everything; a lawyer sees and creates only their own cases; honorarios are limited to the responsible lawyer and the titular; no hard deletes except a client without cases) is enforced in the REST endpoints ticket; see ADR 0002.
 - On a serverless host the rate limiter's in-memory counter is per instance; #13 decides whether to use a shared store.
 
 ## Sources

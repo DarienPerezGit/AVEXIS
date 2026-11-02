@@ -23,7 +23,13 @@ describe('Movimiento', () => {
     }
   })
 
-  it('rejects a tipo outside the five documented entry kinds', async () => {
+  it('accepts the procuracion entries CEDULA and OFICIO', async () => {
+    for (const tipo of ['CEDULA', 'OFICIO']) {
+      await expect(new Movimiento({ ...buildEntry(), tipo }).validate()).resolves.toBeUndefined()
+    }
+  })
+
+  it('rejects a tipo outside the documented entry kinds', async () => {
     const entry = new Movimiento({ ...buildEntry(), tipo: 'SENTENCIA' })
 
     await expect(entry.validate()).rejects.toThrow(/tipo/)

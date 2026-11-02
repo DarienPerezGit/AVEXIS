@@ -24,3 +24,17 @@ Domain terms for AVEXIS, the legal-practice management system. Code uses the Spa
 **Desactivar**: setting `activo: false` on a user. Users are never deleted, so the history of who did what is kept. A deactivated user cannot log in and their open sessions stop working immediately.
 
 **Debe cambiar password**: `debeCambiarPassword: true`. Set when the titular creates a user or resets their password, so the user must replace a password someone else chose before using the system.
+
+## Cases and agenda
+
+**Expediente**: a case the firm carries, with one abogado responsable. Never deleted: it is archived (`ARCHIVADO`).
+
+**Movimiento**: an entry in a case's procedural history (escrito, resolución, notificación, cédula, oficio...). Immutable: a mistake is corrected with a new entry.
+
+**Cédula / Oficio**: a court notice served on a party / an official letter to another office. Core procuración tasks, so they are their own movimiento types (`CEDULA`, `OFICIO`).
+
+**Audiencia**: a hearing, deadline (`VENCIMIENTO`) or expert examination (`PERICIA`) with the ABOGADO who attends. Never deleted: it is cancelled (`CANCELADA`). A **vencimiento fatal** cannot be extended.
+
+**Agenda**: the hearings a user sees. A lawyer's agenda is the hearings they attend plus every hearing on their own cases; the titular and the assistant see the whole firm's. See ADR 0002.
+
+**Honorario**: the fee agreed for a case, with its pagos. Its estado (pendiente, parcial, pagado) is derived from the payments. Only the responsible lawyer and the titular see it.
