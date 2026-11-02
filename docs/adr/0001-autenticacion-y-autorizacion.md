@@ -46,9 +46,9 @@ The system handles confidential client data, so authentication was designed as a
 
 ### User management
 
-9. **No public sign-up.** Client data is confidential, so creating users is an administrative action reserved for the titular (`POST /api/usuarios`). The first titular comes from the seed script.
-10. **The titular sets the initial password and can reset it; both set `debeCambiarPassword`.** While it is set, only `GET /api/auth/me` and `PATCH /api/auth/me/password` respond; everything else answers 403 `PASSWORD_CHANGE_REQUIRED`. The block is on by default in `authenticate`, so a new route cannot forget it. Changing the password requires the current one, so an unattended open session cannot be used to take over the account. Seed users start with the flag off.
-11. **The firm always keeps an active titular.** A titular cannot change their own `rol`, `esTitular` or `activo` (409 `CANNOT_CHANGE_OWN_ACCESS`). Only an active titular can edit users, and that titular always remains one, so this single rule guarantees the invariant without counting titulares. Known limit: it holds for requests that do not overlap. If two titulares deactivate each other at the same instant, both requests pass the check and the firm is left without one. Closing that gap needs a transaction that re-checks the remaining titulares, which is not worth it for a single firm's handful of owners; recovery is the seed script.
+9. **No public sign-up.** Client data is confidential, so creating users is an administrative action reserved for the titular (`POST /api/usuarios`). The first titular comes from `npm run create-titular` (ADR 0004); demo users come from the seed.
+10. **The titular sets the initial password and can reset it; both set `debeCambiarPassword`.** While it is set, only `GET /api/auth/me` and `PATCH /api/auth/me/password` respond; everything else answers 403 `PASSWORD_CHANGE_REQUIRED`. The block is on by default in `authenticate`, so a new route cannot forget it. Changing the password requires the current one, so an unattended open session cannot be used to take over the account. Demo seed users start with the flag off; the titular from `create-titular` starts with it on.
+11. **The firm always keeps an active titular.** A titular cannot change their own `rol`, `esTitular` or `activo` (409 `CANNOT_CHANGE_OWN_ACCESS`). Only an active titular can edit users, and that titular always remains one, so this single rule guarantees the invariant without counting titulares. Known limit: it holds for requests that do not overlap. If two titulares deactivate each other at the same instant, both requests pass the check and the firm is left without one. Closing that gap needs a transaction that re-checks the remaining titulares, which is not worth it for a single firm's handful of owners; recovery is `npm run create-titular` (ADR 0004).
 12. **Users are never deleted**, only deactivated, to preserve who did what.
 
 ### Login responses
@@ -71,7 +71,7 @@ The system handles confidential client data, so authentication was designed as a
 ## Consequences
 
 - One database read per authenticated request. Negligible at this scale.
-- A fresh install has no users until the seed script (#7) creates the first titular.
+- A fresh install has no users until `npm run create-titular` creates the first titular (ADR 0004).
 - The per-case permission matrix (titular sees everything; a lawyer sees and creates only their own cases; honorarios are limited to the responsible lawyer and the titular; no hard deletes except a client without cases) is enforced in the REST endpoints ticket; see ADR 0002.
 - On a serverless host the rate limiter's in-memory counter is per instance; #13 decides whether to use a shared store.
 

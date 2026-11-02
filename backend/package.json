@@ -9,6 +9,8 @@
     "test:watch": "vitest",
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
+    "seed": "tsx src/scripts/seed.ts",
+    "create-titular": "tsx src/scripts/create-titular.ts",
     "build": "tsc --noEmit"
   },
   "dependencies": {

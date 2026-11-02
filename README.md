@@ -10,16 +10,16 @@ Repositorio Base: `DarienPerezGit/sechu-szlit`
 
 ```bash
 # Clonar el repositorio oficial del proyecto
-gh repo clone DarienPerezGit/sechu-szlit
-cd sechu-szlit
+gh repo clone DarienPerezGit/AVEXIS
+cd AVEXIS/backend
 
-# Instalar dependencias
+# Instalar dependencias (siempre dentro de backend/)
 npm install
 
-# Cargar seed inicial con datos de prueba obligatorios
+# Cargar el estudio de demo (vacía la base de MONGODB_URI)
 npm run seed
 
-# Iniciar backend y frontend en desarrollo
+# Iniciar el backend en desarrollo
 npm run dev
 ```
 
@@ -86,10 +86,18 @@ VITE_API_URL=http://localhost:3000/api
 
 ## 6. Usuarios de Prueba (Precargados en `npm run seed`)
 
-| Rol | Email | Contraseña | Comportamiento en Demo |
-| :--- | :--- | :--- | :--- |
-| **Abogado** | `abogado@estudio.com` | `Abogado2026!` | Vista filtrada: solo sus causas y agenda propia. |
-| **Asistente** | `asistente@estudio.com` | `Asistente2026!` | Vista global: carga movimientos y audiencias en todo el estudio. |
+`npm run seed` (dentro de `backend/`) **vacía la base** de `MONGODB_URI` y carga un estudio de demo, con audiencias relativas a la fecha en que se corre. Se puede correr las veces que haga falta; se niega a correr con `NODE_ENV=production`.
+
+Todos los usuarios de demo usan la contraseña `demo avexis 2026`.
+
+| Rol | Email | Comportamiento en Demo |
+| :--- | :--- | :--- |
+| **Titular** (abogada) | `titular@avexis.demo` | Ve todo el estudio y administra usuarios. |
+| **Abogado** | `abogado@avexis.demo` | Vista filtrada: solo sus causas y agenda propia. |
+| **Abogada** | `abogada@avexis.demo` | Otra abogada, para mostrar que no ve las causas del abogado. |
+| **Asistente** | `asistente@avexis.demo` | Vista global: carga movimientos y audiencias en todo el estudio; no ve honorarios. |
+
+**Producción:** no se usa el seed. El primer titular se crea con `npm run create-titular`, que no borra nada y lee `TITULAR_NOMBRE`, `TITULAR_EMAIL` y `TITULAR_PASSWORD` del entorno. Esa contraseña es temporal: el titular debe cambiarla en el primer login.
 
 ---
 
