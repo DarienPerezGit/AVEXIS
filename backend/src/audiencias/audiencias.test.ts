@@ -70,6 +70,24 @@ describe('POST /api/audiencias', () => {
   });
 });
 
+describe('fecha of a hearing', () => {
+  it('accepts only a calendar day, since the local time goes in hora', async () => {
+    const { titular, usuarios } = await crearEstudio();
+    const expediente = await crearExpediente(usuarios.abogado._id);
+    const created = await titular.post('/api/audiencias').send(audiencia(expediente.id, { abogadoId: usuarios.abogado.id }));
+
+    const postWithTime = await titular
+      .post('/api/audiencias')
+      .send(audiencia(expediente.id, { abogadoId: usuarios.abogado.id, fecha: '2026-12-10T10:00:00-03:00' }));
+    const patchWithTime = await titular.patch(`/api/audiencias/${created.body.audiencia._id}`).send({ fecha: '2026-12-15T09:00:00Z' });
+
+    expect(created.body.audiencia.fecha).toBe('2026-12-10T00:00:00.000Z');
+    expect(postWithTime.status).toBe(400);
+    expect(postWithTime.body.error.details[0].path).toBe('fecha');
+    expect(patchWithTime.status).toBe(400);
+  });
+});
+
 describe('GET /api/audiencias', () => {
   it('shows a lawyer only their own agenda, and the owner and the assistant the whole firm agenda in date order', async () => {
     const { titular, abogado, asistente, usuarios } = await crearEstudio();

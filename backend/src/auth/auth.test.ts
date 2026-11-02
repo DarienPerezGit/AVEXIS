@@ -166,11 +166,16 @@ describe('PATCH /api/auth/me/password', () => {
 
 describe('authorize', () => {
   const appWithLawyerOnlyRoute = () =>
-    createTestApp({}, (app) => {
-      app.get('/api/solo-abogados', authenticate(testAuthConfig), authorize('ABOGADO'), (_req, res) => {
-        res.json({ ok: true });
-      });
-    });
+    createTestApp(
+      {},
+      {
+        configure: (app) => {
+          app.get('/api/solo-abogados', authenticate(testAuthConfig), authorize('ABOGADO'), (_req, res) => {
+            res.json({ ok: true });
+          });
+        },
+      },
+    );
 
   it('lets a user with an allowed role through', async () => {
     await crearUsuario({ email: 'ana@estudio.com', rol: 'ABOGADO' });

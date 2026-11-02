@@ -37,4 +37,6 @@ Domain terms for AVEXIS, the legal-practice management system. Code uses the Spa
 
 **Agenda**: the hearings a user sees. A lawyer's agenda is the hearings they attend plus every hearing on their own cases; the titular and the assistant see the whole firm's. See ADR 0002.
 
+**Próximas / urgente**: the alert of upcoming hearings and deadlines: pending ones from today through the next 7 days, counted in the firm's calendar days (Argentina). Urgente means due today, tomorrow or the day after. See ADR 0003.
+
 **Honorario**: the fee agreed for a case, with its pagos. Its estado (pendiente, parcial, pagado) is derived from the payments. Only the responsible lawyer and the titular see it.

@@ -3,8 +3,8 @@ import { createApp } from '../app.js';
 import type { AppOptions } from '../app.js';
 import type { AuthConfig } from '../auth/config.js';
 import { hashPassword } from '../auth/password.js';
-import { Cliente, Expediente, Usuario } from '../models/index.js';
-import type { ExpedienteDoc, Rol } from '../models/index.js';
+import { Audiencia, Cliente, Expediente, Usuario } from '../models/index.js';
+import type { AudienciaDoc, ExpedienteDoc, Rol } from '../models/index.js';
 import type { Types } from 'mongoose';
 
 export const PASSWORD = 'audiencia de los martes';
@@ -16,8 +16,8 @@ export const testAuthConfig: AuthConfig = {
   loginRateLimit: { limit: 10, windowMs: 15 * 60 * 1000 },
 };
 
-export function createTestApp(overrides: Partial<AuthConfig> = {}, configure?: AppOptions['configure']) {
-  return createApp({ auth: { ...testAuthConfig, ...overrides }, configure });
+export function createTestApp(overrides: Partial<AuthConfig> = {}, options: Omit<AppOptions, 'auth'> = {}) {
+  return createApp({ ...options, auth: { ...testAuthConfig, ...overrides } });
 }
 
 // Hashing at cost 12 is slow by design, so the shared test password is hashed once.
@@ -103,4 +103,14 @@ export async function crearExpediente(
     abogadoResponsableId,
     ...input,
   });
+}
+
+/** A hearing on `expedienteId`, attended by `abogadoId`. `fecha` is a calendar day, `YYYY-MM-DD`. */
+export async function crearAudiencia(
+  expedienteId: Types.ObjectId,
+  abogadoId: Types.ObjectId,
+  fecha: string,
+  input: Partial<Omit<AudienciaDoc, 'expedienteId' | 'abogadoId' | 'fecha'>> = {},
+) {
+  return Audiencia.create({ expedienteId, abogadoId, fecha: new Date(fecha), hora: '09:00', tipo: 'AUDIENCIA', ...input });
 }

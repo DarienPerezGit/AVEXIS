@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import type { Express } from 'express';
 import { createAudienciasRouter } from './audiencias/audiencias.routes.js';
+import type { Clock } from './audiencias/calendario.js';
 import { createAuthRouter } from './auth/auth.routes.js';
 import type { AuthConfig } from './auth/config.js';
 import { createClientesRouter } from './clientes/clientes.routes.js';
@@ -21,11 +22,12 @@ export interface AppOptions {
   auth?: AuthConfig;
   /** Extra origins allowed to call the API with credentials. Empty means same origin only. */
   corsOrigins?: string[];
+  clock?: Clock;
   /** Registers routes before the error handlers, so they are covered by them. */
   configure?: (app: Express) => void;
 }
 
-export function createApp({ logDir = 'logs', auth, corsOrigins = [], configure }: AppOptions = {}) {
+export function createApp({ logDir = 'logs', auth, corsOrigins = [], clock, configure }: AppOptions = {}) {
   const app = express();
   app.use(helmet());
   // Front and API share one origin, so cross-origin calls are refused unless an origin is listed explicitly.
@@ -45,7 +47,7 @@ export function createApp({ logDir = 'logs', auth, corsOrigins = [], configure }
     app.use('/api/expedientes/:expedienteId/movimientos', createMovimientosRouter(auth));
     app.use('/api/expedientes/:expedienteId/honorario', createHonorariosRouter(auth));
     app.use('/api/expedientes', createExpedientesRouter(auth));
-    app.use('/api/audiencias', createAudienciasRouter(auth));
+    app.use('/api/audiencias', createAudienciasRouter(auth, clock));
   }
 
   configure?.(app);

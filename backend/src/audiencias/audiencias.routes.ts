@@ -5,11 +5,13 @@ import type { AuthConfig } from '../auth/config.js';
 import { authenticate } from '../auth/middleware.js';
 import { objectId, parse, validationError } from '../http/validation.js';
 import { AUDIENCIA_ESTADOS, AUDIENCIA_TIPOS, Audiencia } from '../models/index.js';
+import { diaCalendario, diasEntre, esUrgente, hoyEnEstudio, relojReal, sumarDias } from './calendario.js';
+import type { Clock } from './calendario.js';
 
 const crearAudienciaSchema = z.object({
   expedienteId: objectId,
   abogadoId: objectId.optional(),
-  fecha: z.coerce.date(),
+  fecha: diaCalendario,
   hora: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Expected HH:mm'),
   tipo: z.enum(AUDIENCIA_TIPOS),
   esVencimientoFatal: z.boolean().optional(),
@@ -20,14 +22,36 @@ const editarAudienciaSchema = crearAudienciaSchema
   .extend({ estado: z.enum(AUDIENCIA_ESTADOS) })
   .partial();
 
+const proximasSchema = z.object({
+  dias: z.coerce.number().int().min(1).max(30).default(7),
+});
+
 /** Hearings and deadlines. There is no DELETE: a hearing is cancelled (estado CANCELADA) so the record stays. */
-export function createAudienciasRouter(config: AuthConfig) {
+export function createAudienciasRouter(config: AuthConfig, clock: Clock = relojReal) {
   const router = Router();
   router.use(authenticate(config));
 
   router.get('/', async (req, res) => {
     const audiencias = await Audiencia.find(await agendaVisible(req.usuario!)).sort({ fecha: 1, hora: 1 });
     res.json({ audiencias });
+  });
+
+  // Upcoming hearings and deadlines alert: pending ones from today (at the firm) through the next `dias` days.
+  router.get('/proximas', async (req, res) => {
+    const { dias } = parse(proximasSchema, req.query);
+    const hoy = hoyEnEstudio(clock());
+    const audiencias = await Audiencia.find({
+      ...(await agendaVisible(req.usuario!)),
+      estado: 'PENDIENTE',
+      fecha: { $gte: hoy, $lte: sumarDias(hoy, dias) },
+    }).sort({ fecha: 1, esVencimientoFatal: -1, hora: 1 }); // a fatal deadline cannot be extended, so it leads its day
+
+    res.json({
+      audiencias: audiencias.map((audiencia) => {
+        const diasRestantes = diasEntre(hoy, audiencia.fecha);
+        return { ...audiencia.toJSON(), diasRestantes, urgente: esUrgente(diasRestantes) };
+      }),
+    });
   });
 
   router.post('/', async (req, res) => {
