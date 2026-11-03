@@ -13,18 +13,18 @@ const contacto = {
   direccion: z.string().trim().optional(),
 };
 
-const crearClienteSchema = z.discriminatedUnion('tipo', [
+export const crearClienteSchema = z.discriminatedUnion('tipo', [
   z.object({ tipo: z.literal('FISICA'), dni: z.string().trim().min(1), ...contacto }),
   z.object({ tipo: z.literal('JURIDICA'), cuit: z.string().trim().min(1), ...contacto }),
 ]);
 
 // Identity (tipo, DNI, CUIT) is fixed once registered; only the name and contact details can be corrected.
-const editarClienteSchema = z.object(contacto).partial();
+export const editarClienteSchema = z.object(contacto).partial();
 
 /** Escapes user text so a search matches it literally instead of as a regular expression. */
 const escapeRegex = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const listarClientesSchema = z.object({ q: z.string().trim().optional() });
+export const listarClientesSchema = z.object({ q: z.string().trim().optional() });
 
 async function findCliente(id: string) {
   const cliente = await Cliente.findById(id);

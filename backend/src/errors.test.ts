@@ -30,6 +30,22 @@ function appThatFailsWith(error: unknown) {
 }
 
 describe('error handling', () => {
+  it('responds 400 INVALID_JSON to a malformed JSON body instead of a server error', async () => {
+    const app = createApp({
+      logDir,
+      configure: (app) => {
+        app.post('/echo', (req, res) => {
+          res.json(req.body);
+        });
+      },
+    });
+
+    const res = await request(app).post('/echo').set('Content-Type', 'application/json').send('{"nombre": ');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_JSON');
+  });
+
   it('responds 500 as JSON without the stack and writes the error to logs/error.log', async () => {
     const res = await request(appThatFailsWith(new Error('kaboom'))).get('/boom');
 

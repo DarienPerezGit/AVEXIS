@@ -8,7 +8,7 @@ import { AUDIENCIA_ESTADOS, AUDIENCIA_TIPOS, Audiencia } from '../models/index.j
 import { diaCalendario, diasEntre, esUrgente, hoyEnEstudio, relojReal, sumarDias } from './calendario.js';
 import type { Clock } from './calendario.js';
 
-const crearAudienciaSchema = z.object({
+export const crearAudienciaSchema = z.object({
   expedienteId: objectId,
   abogadoId: objectId.optional(),
   fecha: diaCalendario,
@@ -17,12 +17,12 @@ const crearAudienciaSchema = z.object({
   esVencimientoFatal: z.boolean().optional(),
 });
 
-const editarAudienciaSchema = crearAudienciaSchema
+export const editarAudienciaSchema = crearAudienciaSchema
   .omit({ expedienteId: true })
   .extend({ estado: z.enum(AUDIENCIA_ESTADOS) })
   .partial();
 
-const proximasSchema = z.object({
+export const proximasSchema = z.object({
   dias: z.coerce.number().int().min(1).max(30).default(7),
 });
 

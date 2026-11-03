@@ -19,6 +19,10 @@ function toErrorBody(err: unknown): ErrorBody {
     const details = Object.values(err.errors).map((error) => ({ path: error.path, message: error.message }));
     return { status: 400, code: 'VALIDATION_ERROR', message: err.message, details };
   }
+  // express.json() rejects a body that is not valid JSON; that is the client's mistake, not a server error.
+  if (typeof err === 'object' && err !== null && (err as { type?: unknown }).type === 'entity.parse.failed') {
+    return { status: 400, code: 'INVALID_JSON', message: 'The request body is not valid JSON' };
+  }
   if (err instanceof MongooseError.CastError) {
     return { status: 400, code: 'INVALID_ID', message: `Invalid value for ${err.path}` };
   }

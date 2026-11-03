@@ -6,7 +6,7 @@ import { authenticate, authorize } from '../auth/middleware.js';
 import { objectId, parse, validationError } from '../http/validation.js';
 import { Cliente, EXPEDIENTE_ESTADOS, Expediente, FUEROS } from '../models/index.js';
 
-const crearExpedienteSchema = z.object({
+export const crearExpedienteSchema = z.object({
   numero: z.string().trim().min(1),
   caratula: z.string().trim().min(1),
   fuero: z.enum(FUEROS),
@@ -17,7 +17,7 @@ const crearExpedienteSchema = z.object({
   observaciones: z.string().trim().optional(),
 });
 
-const listarExpedientesSchema = z.object({
+export const listarExpedientesSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   // Capped so nobody can pull the whole database in one request.
   limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -26,7 +26,7 @@ const listarExpedientesSchema = z.object({
   q: z.string().trim().min(1).optional(),
 });
 
-const editarExpedienteSchema = crearExpedienteSchema
+export const editarExpedienteSchema = crearExpedienteSchema
   .pick({ caratula: true, fuero: true, estado: true, observaciones: true, abogadoResponsableId: true })
   .partial();
 

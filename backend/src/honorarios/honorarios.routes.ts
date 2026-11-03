@@ -14,9 +14,9 @@ import type { HonorarioDoc } from '../models/index.js';
 type Params = { expedienteId: string };
 
 // estado is not accepted: the model derives it from the payments.
-const crearHonorarioSchema = z.object({ montoPactado: z.number().min(0) });
+export const crearHonorarioSchema = z.object({ montoPactado: z.number().min(0) });
 
-const crearPagoSchema = z.object({
+export const crearPagoSchema = z.object({
   monto: z.number().positive(),
   fecha: z.coerce.date().optional(),
 });

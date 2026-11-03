@@ -9,7 +9,7 @@ import { MOVIMIENTO_TIPOS, Movimiento } from '../models/index.js';
 /** Mounted under /api/expedientes/:expedienteId/movimientos. */
 type Params = { expedienteId: string };
 
-const crearMovimientoSchema = z.object({
+export const crearMovimientoSchema = z.object({
   tipo: z.enum(MOVIMIENTO_TIPOS),
   descripcion: z.string().trim().min(1),
   fecha: z.coerce.date().optional(),

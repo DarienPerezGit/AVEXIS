@@ -3,18 +3,13 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import type { Express } from 'express';
-import { createAudienciasRouter } from './audiencias/audiencias.routes.js';
 import type { Clock } from './audiencias/calendario.js';
-import { createAuthRouter } from './auth/auth.routes.js';
 import type { AuthConfig } from './auth/config.js';
-import { createClientesRouter } from './clientes/clientes.routes.js';
 import { databaseState } from './config/database.js';
+import { createDocsRouter } from './docs/docs.routes.js';
 import { errorHandler } from './errors/error-handler.js';
 import { createErrorLogger } from './errors/logger.js';
-import { createExpedientesRouter } from './expedientes/expedientes.routes.js';
-import { createHonorariosRouter } from './honorarios/honorarios.routes.js';
-import { createMovimientosRouter } from './movimientos/movimientos.routes.js';
-import { createUsuariosRouter } from './usuarios/usuarios.routes.js';
+import { createApiRouters } from './routes.js';
 
 export interface AppOptions {
   logDir?: string;
@@ -41,13 +36,10 @@ export function createApp({ logDir = 'logs', auth, corsOrigins = [], clock, conf
   });
 
   if (auth) {
-    app.use('/api/auth', createAuthRouter(auth));
-    app.use('/api/usuarios', createUsuariosRouter(auth));
-    app.use('/api/clientes', createClientesRouter(auth));
-    app.use('/api/expedientes/:expedienteId/movimientos', createMovimientosRouter(auth));
-    app.use('/api/expedientes/:expedienteId/honorario', createHonorariosRouter(auth));
-    app.use('/api/expedientes', createExpedientesRouter(auth));
-    app.use('/api/audiencias', createAudienciasRouter(auth, clock));
+    for (const { path, router } of createApiRouters(auth, clock)) {
+      app.use(path, router);
+    }
+    app.use('/api/docs', createDocsRouter());
   }
 
   configure?.(app);

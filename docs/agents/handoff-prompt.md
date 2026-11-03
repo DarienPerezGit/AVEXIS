@@ -20,11 +20,13 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 | `ee9a07b` | #3 (closed): auth, RBAC and user management |
 | `b40ca10` | #14 / #10 (closed): REST endpoints, permission matrix, Zod validation, pagination |
 | `c6222c7` | #11 (closed): upcoming hearings alert `GET /api/audiencias/proximas` |
-| (this commit) | #7 (closed): `npm run seed` (demo reset) and `npm run create-titular` (production install) |
+| `45b306c` | #7 (closed): `npm run seed` (demo reset) and `npm run create-titular` (production install) |
+| (this commit) | #5 (closed): OpenAPI spec and Swagger UI at `/api/docs` |
 
-- Suite: 150 tests green (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
+- Suite: 155 tests green (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
 - Alert design: `docs/adr/0003-alerta-de-vencimientos.md`. Days are counted in Argentina (`src/audiencias/calendario.ts`); audiencia `fecha` is `YYYY-MM-DD` only. `createApp({ clock })` injects time; tests use `createTestApp({}, { clock })`.
 - Seed design: `docs/adr/0004-seed-de-demo-y-titular-inicial.md`. Demo users share `demo avexis 2026` (README section 6). `npm run seed` empties the database in `MONGODB_URI`: never run it against data you want to keep.
+- API docs: `docs/adr/0005-documentacion-openapi.md`. Every new route must be added to `src/docs/openapi.ts` (and its router to the table in `src/routes.ts`); `src/docs/docs.test.ts` fails on any undocumented or invented route.
 - Error contract: `{ error: { code, message, details? } }` via `AppError`; `details: [{ path, message }]` only on `VALIDATION_ERROR`.
 - REST design: `docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md`. The permission matrix lives only in `src/access/policies.ts` (`expedientesVisibles`, `agendaVisible`, `findExpedienteAccesible`, `findExpedienteConAccesoEconomico`, `findAudienciaAccesible`, `abogadoParaAlta`/`abogadoParaCambio`, `assertAbogadoActivo`). Validate input with `parse(schema, input)` from `src/http/validation.ts`. Check order: auth, role, 404, 403, 400. Tests: `crearEstudio()` gives one logged-in agent per matrix cell, plus `crearCliente`, `crearExpediente`.
 - Auth design: `docs/adr/0001-autenticacion-y-autorizacion.md`. Domain terms: `GLOSSARY.md` (titular, procuracion...). Key points:
@@ -35,7 +37,7 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Skills: the user's skills in `C:\Users\PC\.agents\skills` are linked as junctions into `C:\Users\PC\.claude\skills` (Claude Code only reads `~/.claude/skills` and `<repo>/.claude/skills`). The user's `code-review` collides with a built-in; `/review` is the same skill.
 
 ### Next steps, in order
-1. #5 Swagger, #8 coverage, #12 README, #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
+1. #8 coverage, #12 README, #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
 3. Housekeeping: update GitHub dependency edges and map issue #1.
 4. At the end: rotate the Atlas DB password and use a non-admin user.
 
@@ -59,13 +61,13 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 ```text
 Continua el desarrollo del backend de AVEXIS (TP Final Programacion III, UTN). Responde en espanol, corto, una pregunta a la vez; codigo, commits y docs en ingles. Commits convencionales, sin atribucion de IA. Modo pedagogico: tengo que defender cada decision en el oral, asi que en cada pregunta de diseno explicame el concepto, las opciones, tu recomendacion y una linea "para defenderla".
 
-Contexto: lee docs/agents/handoff-prompt.md (seccion 1), docs/adr/0001-autenticacion-y-autorizacion.md, docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md, docs/adr/0003-alerta-de-vencimientos.md, docs/adr/0004-seed-de-demo-y-titular-inicial.md y GLOSSARY.md, y Engram handoff/avexis-backend-mvp (mem_search con project=tp-final). El PDF del enunciado en la raiz es la especificacion.
+Contexto: lee docs/agents/handoff-prompt.md (seccion 1), docs/adr/0001-autenticacion-y-autorizacion.md, docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md, docs/adr/0003-alerta-de-vencimientos.md, docs/adr/0004-seed-de-demo-y-titular-inicial.md, docs/adr/0005-documentacion-openapi.md y GLOSSARY.md, y Engram handoff/avexis-backend-mvp (mem_search con project=tp-final). El PDF del enunciado en la raiz es la especificacion.
 
-Estado: modelos, errores (#9), autenticacion/RBAC (#3) endpoints REST (#14/#10) alerta de vencimientos (#11) y seed (#7) terminados y publicados, 150 tests en verde.
+Estado: modelos, errores (#9), autenticacion/RBAC (#3) endpoints REST (#14/#10) alerta de vencimientos (#11), seed (#7) y Swagger (#5) terminados y publicados, 155 tests en verde.
 
 Haz esto, en orden:
-1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test (esperado: 150 tests verdes). gh auth status debe mostrar DarienPerezGit activo.
-2. Toma la documentacion Swagger (#5): leela con gh issue view 5 y reclamala. Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
+1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test (esperado: 155 tests verdes). gh auth status debe mostrar DarienPerezGit activo.
+2. Toma el reporte de cobertura (#8): leelo con gh issue view 8 y reclamalo. Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
 3. Al terminar: typecheck, suite completa, code-review, commit, actualizar Engram y este handoff.
 
 Reglas: corre tests, npm install, git y gh sin sandbox. npm/npx siempre dentro de backend\, nunca npm install desde la raiz. En PowerShell cita "@me". Nunca escribas la password de Atlas. No toques C:\Users\PC\package.json.
