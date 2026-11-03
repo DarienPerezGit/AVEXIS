@@ -75,6 +75,14 @@ describe('GET /api/usuarios', () => {
     expect(res.body.usuarios.map((u: { email: string }) => u.email).sort()).toEqual(['beto@estudio.com', 'titular@estudio.com']);
     expect(JSON.stringify(res.body)).not.toContain('passwordHash');
   });
+
+  it('responds 403 to anyone but the firm owner', async () => {
+    const app = createTestApp();
+    await crearUsuario({ email: 'ana@estudio.com', rol: 'ABOGADO' });
+    const agent = await loginComo(app, 'ana@estudio.com');
+
+    expect((await agent.get('/api/usuarios')).status).toBe(403);
+  });
 });
 
 describe('PATCH /api/usuarios/:id', () => {
@@ -153,5 +161,19 @@ describe('POST /api/usuarios/:id/reset-password', () => {
     await agent.post(`/api/usuarios/${beto.id}/reset-password`).send({ password: INITIAL_PASSWORD });
 
     expect((await betoAgent.get('/api/auth/me')).status).toBe(401);
+  });
+
+  it('responds 404 for an unknown user, 400 for a weak password and 403 to anyone but the firm owner', async () => {
+    const { app, agent } = await loginComoTitular();
+    const beto = await crearUsuario({ email: 'beto@estudio.com' });
+    const lawyer = await loginComo(app, 'beto@estudio.com');
+
+    const unknown = await agent.post('/api/usuarios/650000000000000000000000/reset-password').send({ password: INITIAL_PASSWORD });
+    const weak = await agent.post(`/api/usuarios/${beto.id}/reset-password`).send({ password: 'corta' });
+    const notOwner = await lawyer.post(`/api/usuarios/${beto.id}/reset-password`).send({ password: INITIAL_PASSWORD });
+
+    expect(unknown.status).toBe(404);
+    expect(weak.status).toBe(400);
+    expect(notOwner.status).toBe(403);
   });
 });

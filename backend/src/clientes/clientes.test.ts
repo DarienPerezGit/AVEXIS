@@ -75,6 +75,15 @@ describe('GET /api/clientes', () => {
     expect(byDni.body.clientes.map((c: { nombre: string }) => c.nombre)).toEqual(['Mario Ruiz']);
   });
 
+  it('responds 400 when the search is not a single text value', async () => {
+    const { abogado } = await crearEstudio();
+
+    const res = await abogado.get('/api/clientes?q=laura&q=mario');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.details[0].path).toBe('q');
+  });
+
   it('treats search text literally, not as a regular expression', async () => {
     const { abogado } = await crearEstudio();
     await abogado.post('/api/clientes').send(personaFisica);

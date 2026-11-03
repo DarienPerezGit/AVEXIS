@@ -5,8 +5,9 @@ node_modules/
 dist/
 build/
 
-# Test coverage
+# Test coverage. The backend report is versioned on purpose: the assignment asks for it in the repo (ADR 0006).
 coverage/
+!backend/coverage/
 
 # Environment
 .env

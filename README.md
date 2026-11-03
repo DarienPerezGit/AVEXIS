@@ -103,9 +103,9 @@ Todos los usuarios de demo usan la contraseña `demo avexis 2026`.
 
 ## 7. Calidad, Testing y Entrega
 
-- **Supertest:** Tests de integración en `>= 50%` de las rutas backend (`npm run test:api`).
+- **Supertest:** todas las rutas del backend tienen tests de integración; 26 de 28 también prueban una respuesta de error (`npm test` dentro de `backend/`). Inventario ruta por ruta en [`docs/testing.md`](docs/testing.md).
 - **Vitest / RTL:** Tests en `>= 30%` de los componentes frontend (`npm run test:ui`).
-- **Coverage:** `>= 40%` en statements (`npm run test:coverage`), carpeta `/coverage` comiteada en el repo.
+- **Coverage:** la rúbrica pide `>= 40%` de statements; el umbral del proyecto es 90% y `npm run test:coverage` falla por debajo. El reporte está versionado en [`backend/coverage/`](backend/coverage/index.html) (ver ADR 0006).
 - **Logs:** Registro de errores en archivo de texto (`logs/error.log`).
 - **Commits:** Historial de commits incremental y descriptivo (prohibido commit único final).
 - **Plazo:** Repositorio publicado y enviado al docente al menos 1 semana antes de la defensa oral.
