@@ -2,7 +2,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { useTestDatabase } from '../test/database.js';
 import { createApiRouters } from '../routes.js';
-import { crearUsuario, createTestApp, loginComo, testAuthConfig } from '../test/factories.js';
+import { PASSWORD, crearUsuario, createTestApp, loginComo, testAuthConfig } from '../test/factories.js';
 
 useTestDatabase();
 
@@ -60,5 +60,29 @@ describe('API documentation', () => {
     const agent = await loginComo(app, 'ana@estudio.com');
 
     expect((await agent.get('/api/expedientes')).status).toBe(200);
+  });
+
+  it('documents every field the login really returns for a user', async () => {
+    const app = createTestApp();
+    await crearUsuario({ email: 'ana@estudio.com' });
+    const spec = (await request(app).get('/api/docs/openapi.json')).body;
+
+    const login = await request(app).post('/api/auth/login').send({ email: 'ana@estudio.com', password: PASSWORD });
+
+    expect(Object.keys(spec.components.schemas.Usuario.properties)).toEqual(expect.arrayContaining(Object.keys(login.body.usuario)));
+  });
+
+  it('shows each error status with an example of its own code', async () => {
+    const spec = (await request(createTestApp()).get('/api/docs/openapi.json')).body;
+    const exampleCode = (path: string, method: string, status: number) =>
+      spec.paths[path][method].responses[status].content['application/json'].example.error.code;
+
+    expect(exampleCode('/api/expedientes', 'get', 400)).toBe('VALIDATION_ERROR');
+    expect(exampleCode('/api/expedientes', 'get', 401)).toBe('UNAUTHORIZED');
+    expect(exampleCode('/api/expedientes', 'get', 403)).toBe('FORBIDDEN');
+    expect(exampleCode('/api/expedientes/{id}', 'get', 404)).toBe('NOT_FOUND');
+    expect(exampleCode('/api/clientes', 'post', 409)).toBe('DUPLICATE_KEY');
+    expect(exampleCode('/api/auth/login', 'post', 401)).toBe('INVALID_CREDENTIALS');
+    expect(exampleCode('/api/auth/login', 'post', 429)).toBe('TOO_MANY_REQUESTS');
   });
 });

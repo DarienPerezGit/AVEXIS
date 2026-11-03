@@ -75,6 +75,7 @@ const schemas: Record<string, Schema> = {
       esTitular: { type: 'boolean' },
       activo: { type: 'boolean' },
       debeCambiarPassword: { type: 'boolean' },
+      id: { ...id, description: 'Same value as _id' },
       ...timestamps,
     },
   },
@@ -175,6 +176,20 @@ const ERRORS: Record<number, string> = {
   429: 'TOO_MANY_REQUESTS: too many failed logins from this IP',
 };
 
+/** The example shown for each error status: its most common code. An operation can name another one. */
+const EXAMPLES: Record<number, { code: string; message: string; details?: { path: string; message: string }[] }> = {
+  400: { code: 'VALIDATION_ERROR', message: 'Invalid request data', details: [{ path: 'email', message: 'Invalid email address' }] },
+  401: { code: 'UNAUTHORIZED', message: 'Authentication required' },
+  403: { code: 'FORBIDDEN', message: 'Your role cannot perform this action' },
+  404: { code: 'NOT_FOUND', message: 'Case not found' },
+  409: { code: 'DUPLICATE_KEY', message: 'Duplicate value for: numero' },
+  429: { code: 'TOO_MANY_REQUESTS', message: 'Too many failed login attempts. Try again later.' },
+};
+
+function errorResponse(status: number, example = EXAMPLES[status]) {
+  return { description: ERRORS[status], content: { 'application/json': { schema: ref('Error'), example: { error: example } } } };
+}
+
 interface Operation {
   tag: string;
   summary: string;
@@ -190,6 +205,8 @@ interface Operation {
   errors?: number[];
   /** The route opts out of the PASSWORD_CHANGE_REQUIRED block and checks no role, so it never answers 403. */
   allowsPendingPasswordChange?: boolean;
+  /** Example error bodies that differ from the usual one for their status. */
+  errorExamples?: Partial<typeof EXAMPLES>;
 }
 
 const json = (schema: Schema) => ({ 'application/json': { schema } });
@@ -222,7 +239,7 @@ function operation(path: string, method: string, op: Operation) {
     }),
     responses: {
       ...Object.fromEntries([op.ok, ...(op.alsoResponds ?? [])].map(response)),
-      ...Object.fromEntries([...errors].sort().map((code) => [code, { description: ERRORS[code], content: json(ref('Error')) }])),
+      ...Object.fromEntries([...errors].sort().map((code) => [code, errorResponse(code, op.errorExamples?.[code])])),
     },
   };
 }
@@ -248,6 +265,10 @@ const PATHS: Record<string, Record<string, Operation>> = {
       body: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email', example: 'titular@avexis.demo' }, password: { type: 'string', example: 'demo avexis 2026' } } },
       ok: [200, 'Logged in', wrap('usuario', ref('Usuario'))],
       errors: [401, 403, 429],
+      errorExamples: {
+        401: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' },
+        403: { code: 'ACCOUNT_DISABLED', message: 'This account is disabled. Contact the firm owner.' },
+      },
     },
   },
   '/api/auth/logout': {
