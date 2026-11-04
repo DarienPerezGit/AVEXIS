@@ -1,111 +1,186 @@
-# Sistema de Gestión de Estudio Jurídico
+# AVEXIS: gestión de un estudio jurídico
 
-Trabajo Práctico Final — Programación III (2026)  
-Cátedra: Prof. Ing. Gastón A. Larriera — UTN  
-Repositorio Base: `DarienPerezGit/sechu-szlit`
+Trabajo Práctico Final de Programación III (UTN, 2026). Cátedra: Prof. Ing. Gastón A. Larriera.
 
----
+AVEXIS organiza el trabajo diario de un estudio jurídico: clientes, expedientes, movimientos procesales, audiencias, vencimientos y honorarios. Cada instalación sirve a un solo estudio.
 
-## 1. Clonación y Puesta en Marcha
+**Estado:** el backend está terminado y se usa por API o desde Swagger UI. El frontend todavía no existe, así que este README cubre solo `backend/`.
+
+## Cómo funciona
+
+### Roles
+
+Hay dos roles, y el titular es una capacidad extra de un abogado, no un tercer rol.
+
+| Perfil | Qué hace |
+|---|---|
+| **Titular** (`ABOGADO` con `esTitular: true`) | Ve todo el estudio y es el único que administra usuarios. |
+| **Abogado** (`ABOGADO`) | Ve solo sus expedientes y su agenda. |
+| **Asistente** (`ASISTENTE`) | Hace la procuración: carga clientes, movimientos y audiencias en cualquier expediente. No ve honorarios. |
+
+No hay registro público: los usuarios los crea el titular. Quien recibe una contraseña elegida por otro debe cambiarla antes de usar el sistema.
+
+### Entidades
+
+| Entidad | Qué representa |
+|---|---|
+| **Usuario** | Persona que entra al sistema. Nunca se borra, se desactiva. |
+| **Cliente** | Persona física (con DNI) o jurídica (con CUIT). |
+| **Expediente** | Caso del estudio, con un cliente y un abogado responsable. Nunca se borra, se archiva. |
+| **Movimiento** | Entrada del historial procesal de un expediente: escrito, resolución, notificación, cédula, oficio, audiencia u otro. Es inmutable. |
+| **Audiencia** | Audiencia, vencimiento o pericia de un expediente, con el abogado que asiste. Nunca se borra, se cancela. |
+| **Honorario** | Monto pactado de un expediente y sus pagos. Su estado sale de los pagos. Solo lo ven el abogado responsable y el titular. |
+
+Los términos están definidos en [`GLOSSARY.md`](GLOSSARY.md).
+
+### Flujo de trabajo
+
+1. El titular crea los usuarios del estudio.
+2. Se da de alta el cliente y se abre su expediente, con un abogado responsable.
+3. Abogados y asistentes cargan movimientos y agendan audiencias y vencimientos.
+4. La alerta de próximas avisa lo pendiente de los siguientes 7 días y marca como urgente lo que vence en hasta 2 días.
+5. El abogado responsable o el titular registran los honorarios y sus pagos.
+6. Al terminar el caso, el expediente se archiva.
+
+## Stack
+
+Node.js, Express 5, TypeScript, MongoDB Atlas con Mongoose, JWT en cookie `httpOnly`, Zod, Pino, Vitest, Supertest y Swagger UI.
+
+## Levantar el proyecto
+
+### 1. Prerrequisitos
+
+- [Node.js](https://nodejs.org/) 20.19 o superior, con npm. Probado con Node 24.
+- [Git](https://git-scm.com/).
+- Una cuenta gratuita de [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register).
+
+### 2. Crear el cluster de Atlas
+
+1. Creá un proyecto y un cluster gratuito (**M0**).
+2. En **Database Access**, creá un usuario con contraseña y permiso de lectura y escritura.
+3. En **Network Access**, agregá tu IP actual.
+4. En el cluster, entrá a **Connect > Drivers** y copiá la URI de conexión.
+
+### 3. Instalar
 
 ```bash
-# Clonar el repositorio oficial del proyecto
-gh repo clone DarienPerezGit/AVEXIS
+git clone https://github.com/DarienPerezGit/AVEXIS.git
 cd AVEXIS/backend
-
-# Instalar dependencias (siempre dentro de backend/)
 npm install
+```
 
-# Cargar el estudio de demo (vacía la base de MONGODB_URI)
+Todos los comandos de este README se corren dentro de `backend/`.
+
+### 4. Configurar `.env`
+
+```bash
+cp .env.example .env
+```
+
+Abrí `.env` y completá estas dos variables:
+
+| Variable | Valor |
+|---|---|
+| `MONGODB_URI` | La URI de Atlas, con tu usuario y contraseña, y `estudio_juridico` como nombre de base antes del `?`. |
+| `JWT_SECRET` | Un texto largo y aleatorio. Podés generarlo con el comando de abajo. |
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
+```
+
+La URI queda con esta forma:
+
+```text
+mongodb+srv://<usuario>:<contraseña>@<cluster>.mongodb.net/estudio_juridico?retryWrites=true&w=majority
+```
+
+Si la contraseña tiene caracteres especiales como `@`, `:` o `/`, escribilos con URL encoding. El resto de las variables ya trae un valor que sirve para desarrollo local, y `.env.example` explica cada una.
+
+`.env` está ignorado por git: no subas tus credenciales.
+
+### 5. Cargar los datos iniciales
+
+```bash
 npm run seed
+```
 
-# Iniciar el backend en desarrollo
+> **Cuidado:** `npm run seed` **vacía la base** de `MONGODB_URI` antes de cargar los datos. No lo corras contra una base que quieras conservar.
+
+El seed cumple el rol de migración inicial. Carga un estudio de demo con usuarios, clientes, expedientes en todos los estados, movimientos, audiencias y honorarios. Las fechas de las audiencias son relativas al momento en que se corre, así que la alerta de próximas siempre tiene datos. Se puede repetir las veces que haga falta y se niega a correr con `NODE_ENV=production`.
+
+### 6. Iniciar
+
+```bash
 npm run dev
 ```
 
-### Variables de Entorno
+Cuando la consola muestra `API listening on http://localhost:3000`, el backend está listo. Para comprobarlo, abrí <http://localhost:3000/api/health>: debe responder `{"status":"ok","database":"connected"}`.
 
-**Backend (`.env`):**
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/estudio_juridico
-JWT_SECRET=secreto_jwt_seguro_utn
+Si el puerto 3000 está ocupado, el proceso muestra el error y no arranca. Cambiá `PORT` en `.env`, o cerrá lo que lo esté usando, y volvé a correr el comando.
+
+### 7. Probar la API
+
+La documentación interactiva está en <http://localhost:3000/api/docs>. Para usarla, ejecutá `POST /api/auth/login` con uno de los usuarios de demo: la sesión queda en una cookie y las demás rutas ya funcionan desde la misma página.
+
+## Usuarios de demostración
+
+Los crea `npm run seed`. Todos usan la contraseña `demo avexis 2026`, que es pública y solo existe en los datos de demo.
+
+| Perfil | Email | Qué permite mostrar |
+|---|---|---|
+| Titular | `titular@avexis.demo` | Ve todo el estudio y administra usuarios. |
+| Abogado | `abogado@avexis.demo` | Ve solo sus expedientes y su agenda. |
+| Abogada | `abogada@avexis.demo` | Tampoco ve los expedientes del otro abogado. |
+| Asistente | `asistente@avexis.demo` | Carga datos en todo el estudio, pero no ve honorarios. |
+
+## Comandos
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Inicia el servidor y lo reinicia con cada cambio. |
+| `npm start` | Inicia el servidor sin reinicio automático. |
+| `npm run seed` | Vacía la base y carga el estudio de demo. |
+| `npm run create-titular` | Crea el primer titular de una instalación real, sin borrar nada. |
+| `npm test` | Corre todos los tests una vez. |
+| `npm run test:watch` | Corre los tests cada vez que cambia un archivo. |
+| `npm run test:coverage` | Corre los tests y genera el reporte de cobertura. Falla si baja del umbral. |
+| `npm run typecheck` | Verifica los tipos de TypeScript. |
+| `npm run build` | Hace la misma verificación de tipos: el servidor corre el TypeScript directamente con `tsx`. |
+
+## Tests
+
+```bash
+npm test
+npm run test:coverage
 ```
 
-**Frontend (`.env`):**
-```env
-VITE_API_URL=http://localhost:3000/api
-```
+Los tests no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más.
 
----
+El enunciado pide 40% de cobertura de statements, y el proyecto exige 90% para detectar código nuevo sin tests. El reporte está versionado en [`backend/coverage/`](backend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
 
-## 2. Especificación Técnica para Desarrollo
+## Instalación real
 
-### Stack Obligatorio (Rúbrica)
-- **Base de Datos:** MongoDB (vía Mongoose)
-- **Backend:** Node.js, Express.js, TypeScript
-- **Frontend:** React.js, TypeScript, Librería de UI (**Material UI**, **Ant Design** o **Chakra UI**)
-- **Seguridad:** JWT (Bearer token almacenado en cliente)
-- **Testing:** Supertest (backend) y Vitest + RTL (frontend)
-- **Documentación API:** Swagger / OpenAPI en `/api/docs`
+En una instalación real no se usa el seed. El primer titular se crea así:
 
----
+1. Definí `TITULAR_NOMBRE`, `TITULAR_EMAIL` y `TITULAR_PASSWORD` en `.env`. La contraseña debe tener entre 15 y 64 caracteres.
+2. Corré `npm run create-titular`.
+3. Entrá con ese usuario y cambiá la contraseña, que es temporal.
+4. Borrá esas tres variables de `.env`.
 
-## 3. Modelo de Entidades (Backend)
+Con `NODE_ENV=production`, la cookie de sesión solo viaja por HTTPS.
 
-1. **Usuarios:** `email`, `passwordHash`, `nombre`, `rol` (`abogado` | `asistente`), `activo`.
-2. **Clientes:** `tipo` (`fisica` | `juridica`), `nombreRazonSocial`, `cuitDni`, `email`, `telefono`, `domicilio`.
-3. **Expedientes:** `caratula`, `numeroExpediente`, `fueroMateria`, `estado` (`en_tramite` | `en_espera` | `archivado`), `clienteId` (Ref), `abogadoResponsableId` (Ref).
-4. **Movimientos:** `expedienteId` (Ref), `fecha`, `tipo` (`escrito` | `resolucion` | `notificacion`), `titulo`, `descripcion`, `usuarioId` (Ref).
-5. **Audiencias y Vencimientos:** `expedienteId` (Ref), `abogadoId` (Ref), `fecha`, `hora`, `tipo`, `estado`, `esVencimientoFatal` (Boolean para alertas).
-6. **Honorarios y Pagos:** `expedienteId` (Ref), `montoPactado`, `montoPagado`, `fecha`, `estado`.
+## Seguridad y errores
 
----
+- **Sesión:** el JWT viaja en una cookie `httpOnly`, `Secure` en producción y `SameSite=Strict`. No se usa `localStorage` ni el header `Authorization`.
+- **Contraseñas:** se guardan con bcrypt, y el login limita los intentos fallidos por IP.
+- **Errores:** la API responde `{ "error": { "code", "message" } }`, y los errores del servidor quedan en `backend/logs/error.log`.
 
-## 4. Reglas de Negocio y Permisos (RBAC)
+## Documentación del proyecto
 
-- **Abogado:** 
-  - Solo visualiza sus expedientes asignados (`abogadoResponsableId == req.user.id`).
-  - Solo visualiza su agenda personal de audiencias.
-- **Asistente:** 
-  - Puede dar de alta clientes.
-  - Puede cargar movimientos, audiencias y escritos en **cualquier expediente**.
-  - Visualiza el calendario general del estudio.
+- [`docs/adr/`](docs/adr/): decisiones de diseño y sus alternativas.
+- [`GLOSSARY.md`](GLOSSARY.md): términos del dominio.
+- [`docs/testing.md`](docs/testing.md): plan de pruebas e inventario de rutas.
 
----
+## Licencia
 
-## 5. Páginas del Frontend (Mínimo 5 con Ruteo)
-
-1. `/login`: Formulario de autenticación JWT y almacenamiento de sesión.
-2. `/dashboard` (o `/agenda`): Calendario/agenda diaria con **aviso destacado de vencimientos próximos** (< 7 días).
-3. `/expedientes`: Listado con **paginación en servidor y filtros** (por estado, fuero y búsqueda).
-4. `/expedientes/:id`: Detalle del caso, datos del cliente y formulario para asentar movimientos.
-5. `/clientes`: Listado y modal de alta/edición de clientes (personas físicas o jurídicas).
-
----
-
-## 6. Usuarios de Prueba (Precargados en `npm run seed`)
-
-`npm run seed` (dentro de `backend/`) **vacía la base** de `MONGODB_URI` y carga un estudio de demo, con audiencias relativas a la fecha en que se corre. Se puede correr las veces que haga falta; se niega a correr con `NODE_ENV=production`.
-
-Todos los usuarios de demo usan la contraseña `demo avexis 2026`.
-
-| Rol | Email | Comportamiento en Demo |
-| :--- | :--- | :--- |
-| **Titular** (abogada) | `titular@avexis.demo` | Ve todo el estudio y administra usuarios. |
-| **Abogado** | `abogado@avexis.demo` | Vista filtrada: solo sus causas y agenda propia. |
-| **Abogada** | `abogada@avexis.demo` | Otra abogada, para mostrar que no ve las causas del abogado. |
-| **Asistente** | `asistente@avexis.demo` | Vista global: carga movimientos y audiencias en todo el estudio; no ve honorarios. |
-
-**Producción:** no se usa el seed. El primer titular se crea con `npm run create-titular`, que no borra nada y lee `TITULAR_NOMBRE`, `TITULAR_EMAIL` y `TITULAR_PASSWORD` del entorno. Esa contraseña es temporal: el titular debe cambiarla en el primer login.
-
----
-
-## 7. Calidad, Testing y Entrega
-
-- **Supertest:** todas las rutas del backend tienen tests de integración; 26 de 28 también prueban una respuesta de error (`npm test` dentro de `backend/`). Inventario ruta por ruta en [`docs/testing.md`](docs/testing.md).
-- **Vitest / RTL:** Tests en `>= 30%` de los componentes frontend (`npm run test:ui`).
-- **Coverage:** la rúbrica pide `>= 40%` de statements; el umbral del proyecto es 90% y `npm run test:coverage` falla por debajo. El reporte está versionado en [`backend/coverage/`](backend/coverage/index.html) (ver ADR 0006).
-- **Logs:** Registro de errores en archivo de texto (`logs/error.log`).
-- **Commits:** Historial de commits incremental y descriptivo (prohibido commit único final).
-- **Plazo:** Repositorio publicado y enviado al docente al menos 1 semana antes de la defensa oral.
+Distribuido bajo la licencia MIT. Ver [`LICENSE`](LICENSE).

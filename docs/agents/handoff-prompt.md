@@ -23,7 +23,8 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 | `45b306c` | #7 (closed): `npm run seed` (demo reset) and `npm run create-titular` (production install) |
 | `3379b44` | #5 (closed): OpenAPI spec and Swagger UI at `/api/docs` |
 | `df1c704` | Docs: user `id` and per-status error examples |
-| (this commit) | #8 (closed): coverage threshold 90%, versioned report, route inventory in `docs/testing.md` |
+| `b377b9e` | #8 (closed): coverage threshold 90%, versioned report, route inventory in `docs/testing.md` |
+| (this commit) | #12: README rewritten and verified against Atlas; `server.ts` reports listen failures |
 
 - Suite: 161 tests green, coverage about 95% of statements (threshold 90%) (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
 - Alert design: `docs/adr/0003-alerta-de-vencimientos.md`. Days are counted in Argentina (`src/audiencias/calendario.ts`); audiencia `fecha` is `YYYY-MM-DD` only. `createApp({ clock })` injects time; tests use `createTestApp({}, { clock })`.
@@ -40,7 +41,7 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Skills: the user's skills in `C:\Users\PC\.agents\skills` are linked as junctions into `C:\Users\PC\.claude\skills` (Claude Code only reads `~/.claude/skills` and `<repo>/.claude/skills`). The user's `code-review` collides with a built-in; `/review` is the same skill.
 
 ### Next steps, in order
-1. #12 README, #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
+1. #6 UI, #13 deploy (Vercel vs Render vs Railway; same origin; serverless traps: file log, rate-limit store, `trust proxy`, Atlas connection reuse).
 3. Housekeeping: update GitHub dependency edges and map issue #1.
 4. At the end: rotate the Atlas DB password and use a non-admin user.
 
@@ -52,6 +53,7 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Engram needs `project=tp-final`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`.
 - `vitest.config.ts` raises the test timeout to 30 s: every domain test logs in four users through bcrypt cost 12 while files run in parallel.
 - Heredocs through the Bash tool can collapse `\\` into `\`; write files with regexes or escaped quotes using the Write/Edit tools.
+- On Windows, killing a background `npm run dev` by its shell pid leaves the `tsx` child alive and holding the port; stop it through the listening process and its parent.
 - `backend/.env` is local and git-ignored. The user should set `JWT_EXPIRES_IN=8h` there. Never write the Atlas password anywhere.
 
 ### User preferences
@@ -66,11 +68,11 @@ Continua el desarrollo del backend de AVEXIS (TP Final Programacion III, UTN). R
 
 Contexto: lee docs/agents/handoff-prompt.md (seccion 1), docs/adr/0001-autenticacion-y-autorizacion.md, docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md, docs/adr/0003-alerta-de-vencimientos.md, docs/adr/0004-seed-de-demo-y-titular-inicial.md, docs/adr/0005-documentacion-openapi.md, docs/adr/0006-cobertura-y-plan-de-pruebas.md, docs/testing.md y GLOSSARY.md, y Engram handoff/avexis-backend-mvp (mem_search con project=tp-final). El PDF del enunciado en la raiz es la especificacion.
 
-Estado: modelos, errores (#9), autenticacion/RBAC (#3) endpoints REST (#14/#10) alerta de vencimientos (#11), seed (#7), Swagger (#5) y cobertura (#8) terminados y publicados, 161 tests en verde.
+Estado: modelos, errores (#9), autenticacion/RBAC (#3) endpoints REST (#14/#10) alerta de vencimientos (#11), seed (#7), Swagger (#5), cobertura (#8) y README (#12) terminados y publicados, 161 tests en verde.
 
 Haz esto, en orden:
 1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test (esperado: 161 tests verdes). gh auth status debe mostrar DarienPerezGit activo.
-2. Toma el README (#12): leelo con gh issue view 12 y reclamalo. Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
+2. Toma la UI (#6): leela con gh issue view 6 y reclamala. Si el ticket deja decisiones abiertas, haz grilling conmigo primero. Antes de escribir tests, propone los seams y espera mi confirmacion. Usa los skills tdd y code-review.
 3. Al terminar: typecheck, suite completa, code-review, commit, actualizar Engram y este handoff.
 
 Reglas: corre tests, npm install, git y gh sin sandbox. npm/npx siempre dentro de backend\, nunca npm install desde la raiz. En PowerShell cita "@me". Nunca escribas la password de Atlas. No toques C:\Users\PC\package.json.
