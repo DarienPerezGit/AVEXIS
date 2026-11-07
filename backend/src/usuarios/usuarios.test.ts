@@ -85,6 +85,52 @@ describe('GET /api/usuarios', () => {
   });
 });
 
+describe('GET /api/usuarios/abogados', () => {
+  async function estudioConAbogados() {
+    const app = createTestApp();
+    const titular = await crearUsuario({ nombre: 'Zoe Titular', email: 'titular@estudio.com', esTitular: true });
+    const ana = await crearUsuario({ nombre: 'Ana Diaz', email: 'ana@estudio.com' });
+    await crearUsuario({ nombre: 'Beto Baja', email: 'beto@estudio.com', activo: false });
+    await crearUsuario({ nombre: 'Carla Ruiz', email: 'carla@estudio.com', rol: 'ASISTENTE' });
+    return { app, titular, ana };
+  }
+
+  it('lists only the active lawyers, owner included, by name and without any other field', async () => {
+    const { app, titular, ana } = await estudioConAbogados();
+    const expected = [
+      { _id: ana.id, nombre: 'Ana Diaz' },
+      { _id: titular.id, nombre: 'Zoe Titular' },
+    ];
+
+    const asOwner = await (await loginComo(app, 'titular@estudio.com')).get('/api/usuarios/abogados');
+    const asAssistant = await (await loginComo(app, 'carla@estudio.com')).get('/api/usuarios/abogados');
+
+    expect(asOwner.status).toBe(200);
+    expect(asOwner.body.abogados).toEqual(expected);
+    expect(asAssistant.status).toBe(200);
+    expect(asAssistant.body.abogados).toEqual(expected);
+  });
+
+  it('responds 403 to a lawyer who is not the firm owner', async () => {
+    const { app } = await estudioConAbogados();
+
+    const res = await (await loginComo(app, 'ana@estudio.com')).get('/api/usuarios/abogados');
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('opens only this route to the assistant: managing users stays with the firm owner', async () => {
+    const { app, ana } = await estudioConAbogados();
+    const asistente = await loginComo(app, 'carla@estudio.com');
+
+    expect((await asistente.get('/api/usuarios')).status).toBe(403);
+    expect((await asistente.post('/api/usuarios').send({})).status).toBe(403);
+    expect((await asistente.patch(`/api/usuarios/${ana.id}`).send({ activo: false })).status).toBe(403);
+    expect((await asistente.post(`/api/usuarios/${ana.id}/reset-password`).send({ password: INITIAL_PASSWORD })).status).toBe(403);
+  });
+});
+
 describe('PATCH /api/usuarios/:id', () => {
   it('updates rol, esTitular and activo, and ignores any other field', async () => {
     const { agent } = await loginComoTitular();

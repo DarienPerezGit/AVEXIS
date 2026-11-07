@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearEstudio, crearExpediente } from '../test/factories.js';
 
@@ -53,6 +54,18 @@ describe('GET /api/expedientes/:id/movimientos', () => {
     expect(res.status).toBe(200);
     expect(res.body.movimientos.map((m: { descripcion: string }) => m.descripcion)).toEqual(['Oficio al registro', 'Demanda']);
     expect((await otroAbogado.get(url)).status).toBe(403);
+  });
+
+  it('names who loaded each entry', async () => {
+    const { asistente, usuarios } = await crearEstudio();
+    await Usuario.updateOne({ _id: usuarios.asistente._id }, { nombre: 'Carla Ruiz' });
+    const expediente = await crearExpediente(usuarios.abogado._id);
+    const url = `/api/expedientes/${expediente.id}/movimientos`;
+    await asistente.post(url).send({ tipo: 'CEDULA', descripcion: 'Se diligencia cedula' });
+
+    const res = await asistente.get(url);
+
+    expect(res.body.movimientos[0].usuarioId).toEqual({ _id: usuarios.asistente.id, nombre: 'Carla Ruiz' });
   });
 
   it('has no way to edit or delete an entry', async () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
-import { crearEstudio, crearExpediente, crearUsuario } from '../test/factories.js';
+import { crearAudiencia, crearEstudio, crearExpediente, crearUsuario } from '../test/factories.js';
 
 useTestDatabase();
 
@@ -119,6 +120,25 @@ describe('GET /api/audiencias for the responsible lawyer', () => {
 
     expect(await fechas(abogado)).toEqual(['2026-12-02']);
     expect(await fechas(otroAbogado)).toEqual(['2026-12-02', '2026-12-03']);
+  });
+});
+
+describe('GET /api/audiencias names', () => {
+  it('bring the case and the attendee, with the responsible lawyer id so the agenda knows whether to link the case', async () => {
+    const { abogado, usuarios } = await crearEstudio();
+    await Usuario.updateOne({ _id: usuarios.abogado._id }, { nombre: 'Ana Diaz' });
+    const foreign = await crearExpediente(usuarios.otroAbogado._id, { numero: '77/2026', caratula: 'Soto c/ Vera' });
+    await crearAudiencia(foreign._id, usuarios.abogado._id, '2026-12-02');
+
+    const res = await abogado.get('/api/audiencias');
+
+    expect(res.body.audiencias[0].expedienteId).toEqual({
+      _id: foreign.id,
+      numero: '77/2026',
+      caratula: 'Soto c/ Vera',
+      abogadoResponsableId: usuarios.otroAbogado.id,
+    });
+    expect(res.body.audiencias[0].abogadoId).toEqual({ _id: usuarios.abogado.id, nombre: 'Ana Diaz' });
   });
 });
 

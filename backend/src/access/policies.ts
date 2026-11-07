@@ -33,6 +33,13 @@ export function abogadoParaCambio(usuario: UsuarioSesion, solicitado: string | u
   return actuaSoloSobreLoPropio(usuario) ? undefined : solicitado;
 }
 
+/** Only who can assign work to any lawyer needs to list them: the titular and the assistant. */
+export function assertPuedeAsignarAbogados(usuario: UsuarioSesion) {
+  if (actuaSoloSobreLoPropio(usuario)) {
+    throw new AppError(403, 'FORBIDDEN', 'Only the firm owner and assistants can list the lawyers');
+  }
+}
+
 /** Only an active ABOGADO can carry a case or attend a hearing; anyone else is invalid input for `path`. */
 export async function assertAbogadoActivo(id: string, path: string) {
   if (!(await Usuario.exists({ _id: id, rol: 'ABOGADO', activo: true }))) {

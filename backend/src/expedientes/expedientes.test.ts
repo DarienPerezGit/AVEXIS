@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearCliente, crearEstudio, crearExpediente } from '../test/factories.js';
 
@@ -110,6 +111,41 @@ describe('GET /api/expedientes', () => {
 
     expect(res.body.total).toBe(1);
     expect(numeros(res)).toEqual(['A-1']);
+  });
+});
+
+describe('names on a case', () => {
+  async function expedienteConNombres() {
+    const estudio = await crearEstudio();
+    await Usuario.updateOne({ _id: estudio.usuarios.abogado._id }, { nombre: 'Ana Diaz' });
+    const cliente = await crearCliente({ nombre: 'Ruben Soto' });
+    const expediente = await crearExpediente(estudio.usuarios.abogado._id, { clienteId: cliente._id });
+    return {
+      ...estudio,
+      expediente,
+      nombres: {
+        clienteId: { _id: cliente.id, nombre: 'Ruben Soto' },
+        abogadoResponsableId: { _id: estudio.usuarios.abogado.id, nombre: 'Ana Diaz' },
+      },
+    };
+  }
+
+  it('come with the client and the responsible lawyer in the list, and nothing else of them', async () => {
+    const { abogado, nombres } = await expedienteConNombres();
+
+    const res = await abogado.get('/api/expedientes');
+
+    expect(res.body.data[0].clienteId).toEqual(nombres.clienteId);
+    expect(res.body.data[0].abogadoResponsableId).toEqual(nombres.abogadoResponsableId);
+  });
+
+  it('come with the client and the responsible lawyer in the detail, and nothing else of them', async () => {
+    const { abogado, expediente, nombres } = await expedienteConNombres();
+
+    const res = await abogado.get(`/api/expedientes/${expediente.id}`);
+
+    expect(res.body.expediente.clienteId).toEqual(nombres.clienteId);
+    expect(res.body.expediente.abogadoResponsableId).toEqual(nombres.abogadoResponsableId);
   });
 });
 

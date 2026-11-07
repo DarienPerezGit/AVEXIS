@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { abogadoParaAlta, abogadoParaCambio, agendaVisible, assertAbogadoActivo, findAudienciaAccesible, findExpedienteAccesible } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate } from '../auth/middleware.js';
+import { conNombre } from '../http/populate.js';
 import { objectId, parse, validationError } from '../http/validation.js';
 import { AUDIENCIA_ESTADOS, AUDIENCIA_TIPOS, Audiencia } from '../models/index.js';
 import { diaCalendario, diasEntre, esUrgente, hoyEnEstudio, relojReal, sumarDias } from './calendario.js';
@@ -26,13 +27,16 @@ export const proximasSchema = z.object({
   dias: z.coerce.number().int().min(1).max(30).default(7),
 });
 
+// The responsible lawyer stays an id: it only tells the agenda whether this user can open the case.
+const DATOS_AGENDA = [{ path: 'expedienteId', select: 'numero caratula abogadoResponsableId' }, conNombre('abogadoId')];
+
 /** Hearings and deadlines. There is no DELETE: a hearing is cancelled (estado CANCELADA) so the record stays. */
 export function createAudienciasRouter(config: AuthConfig, clock: Clock = relojReal) {
   const router = Router();
   router.use(authenticate(config));
 
   router.get('/', async (req, res) => {
-    const audiencias = await Audiencia.find(await agendaVisible(req.usuario!)).sort({ fecha: 1, hora: 1 });
+    const audiencias = await Audiencia.find(await agendaVisible(req.usuario!)).sort({ fecha: 1, hora: 1 }).populate(DATOS_AGENDA);
     res.json({ audiencias });
   });
 
@@ -44,7 +48,9 @@ export function createAudienciasRouter(config: AuthConfig, clock: Clock = relojR
       ...(await agendaVisible(req.usuario!)),
       estado: 'PENDIENTE',
       fecha: { $gte: hoy, $lte: sumarDias(hoy, dias) },
-    }).sort({ fecha: 1, esVencimientoFatal: -1, hora: 1 }); // a fatal deadline cannot be extended, so it leads its day
+    })
+      .sort({ fecha: 1, esVencimientoFatal: -1, hora: 1 }) // a fatal deadline cannot be extended, so it leads its day
+      .populate(DATOS_AGENDA);
 
     res.json({
       audiencias: audiencias.map((audiencia) => {
