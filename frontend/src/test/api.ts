@@ -6,11 +6,18 @@ export const errorDeApi = (code: string, status: number): Respuesta => [status, 
 
 export const SIN_SESION = errorDeApi('UNAUTHORIZED', 401);
 
+/** The agenda is the home page, so every test that lands there gets an empty one unless it says otherwise. */
+const AGENDA_VACIA: Record<string, Respuesta> = {
+  'GET /api/audiencias': [200, { audiencias: [] }],
+  'GET /api/audiencias/proximas': [200, { audiencias: [] }],
+};
+
 /**
  * Replaces `fetch`, the boundary with the API, so tests render real components against answers of the real shape.
  * `rutas` maps "METHOD /api/path" to its answer and can change during a test.
  */
-export function simularApi(rutas: Record<string, Respuesta>) {
+export function simularApi(propias: Record<string, Respuesta>) {
+  const rutas = { ...AGENDA_VACIA, ...propias };
   const llamadas: { ruta: string; body: unknown; init?: RequestInit }[] = [];
 
   vi.stubGlobal('fetch', async (url: string, init?: RequestInit) => {
