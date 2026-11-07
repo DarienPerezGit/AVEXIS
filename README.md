@@ -192,7 +192,7 @@ npm run test:coverage
 
 Corren igual dentro de `backend/` y de `frontend/`. Los del backend no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más.
 
-El enunciado pide 40% de cobertura de statements, y el proyecto exige 90% para detectar código nuevo sin tests. Los reportes están versionados en [`backend/coverage/`](backend/coverage/index.html) y [`frontend/coverage/`](frontend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
+El enunciado pide 40% de cobertura de statements. El backend exige 90% para detectar código nuevo sin tests, y el frontend, 40% hasta que estén todas las páginas. Los reportes están versionados en [`backend/coverage/`](backend/coverage/index.html) y [`frontend/coverage/`](frontend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
 
 ## Instalación real
 

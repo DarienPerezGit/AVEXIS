@@ -1,12 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { api, configurarSesionVencida } from './api';
+import { ApiError, api, configurarSesionVencida } from './api';
 import type { Usuario } from './permisos';
 
 interface Sesion {
   usuario: Usuario | null;
   /** True until the first `/auth/me` answers, so no page decides before knowing who is here. */
   cargando: boolean;
+  /** The API could not say who is here. It does not mean there is no session, so the login is not the answer. */
+  falloLaCarga: boolean;
+  cargar: () => Promise<void>;
   entrar: (email: string, password: string) => Promise<void>;
   salir: () => Promise<void>;
   recargar: () => Promise<void>;
@@ -19,16 +22,25 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [cargando, setCargando] = useState(true);
 
+  const [falloLaCarga, setFalloLaCarga] = useState(false);
+
   const recargar = useCallback(async () => {
+    const res = await api<{ usuario: Usuario }>('/auth/me');
+    setUsuario(res.usuario);
+  }, []);
+
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    setFalloLaCarga(false);
     try {
-      const res = await api<{ usuario: Usuario }>('/auth/me');
-      setUsuario(res.usuario);
-    } catch {
-      setUsuario(null);
+      await recargar();
+    } catch (error) {
+      // UNAUTHORIZED already cleared the user in `api`. Anything else says nothing about the session.
+      setFalloLaCarga(!(error instanceof ApiError && error.code === 'UNAUTHORIZED'));
     } finally {
       setCargando(false);
     }
-  }, []);
+  }, [recargar]);
 
   const entrar = useCallback(async (email: string, password: string) => {
     const res = await api<{ usuario: Usuario }>('/auth/login', { method: 'POST', body: { email, password } });
@@ -42,10 +54,13 @@ export function SesionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     configurarSesionVencida(() => setUsuario(null));
-    void recargar();
-  }, [recargar]);
+    void cargar();
+  }, [cargar]);
 
-  const sesion = useMemo(() => ({ usuario, cargando, entrar, salir, recargar }), [usuario, cargando, entrar, salir, recargar]);
+  const sesion = useMemo(
+    () => ({ usuario, cargando, falloLaCarga, cargar, entrar, salir, recargar }),
+    [usuario, cargando, falloLaCarga, cargar, entrar, salir, recargar],
+  );
 
   return <SesionContext.Provider value={sesion}>{children}</SesionContext.Provider>;
 }

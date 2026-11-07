@@ -48,8 +48,8 @@ export async function api<T>(path: string, { method = 'GET', body }: Opciones = 
 
   // A proxy answering for a stopped backend sends HTML, so the body cannot be trusted to be JSON.
   const datos = await respuesta.json().catch(() => null);
-  if (datos === null) {
-    throw new ApiError(respuesta.status, 'UNEXPECTED_RESPONSE', 'The API answered something that is not JSON');
+  if (datos === null || (!respuesta.ok && !datos.error)) {
+    throw new ApiError(respuesta.status, 'UNEXPECTED_RESPONSE', 'The answer does not follow the API contract');
   }
   if (!respuesta.ok) {
     const { code, message, details } = datos.error;

@@ -54,6 +54,19 @@ describe('password change', () => {
     expect(simulada.rutasLlamadas().filter((ruta) => ruta === 'GET /api/auth/me')).toHaveLength(2);
   });
 
+  it('reports a failure reading the user again, without claiming success or ending the session', async () => {
+    const simulada = simularApi({ 'GET /api/auth/me': [200, { usuario: PENDIENTE }], [CAMBIO]: [204] });
+    renderApp('/cambiar-password');
+    await screen.findByLabelText('Contraseña actual');
+    simulada.rutas['GET /api/auth/me'] = errorDeApi('INTERNAL_ERROR', 500);
+
+    await completar('la actual', NUEVA, NUEVA);
+
+    expect(await screen.findByText('Algo salió mal. Intentá de nuevo.')).toBeInTheDocument();
+    expect(screen.queryByText('Contraseña actualizada.')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Cambiar contraseña' })).toBeInTheDocument();
+  });
+
   it('offers only the logout to a user forced to change it', async () => {
     const simulada = simularApi({ 'GET /api/auth/me': [200, { usuario: PENDIENTE }], 'POST /api/auth/logout': [204] });
     renderApp('/cambiar-password');

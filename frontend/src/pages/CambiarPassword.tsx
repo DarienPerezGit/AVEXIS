@@ -10,7 +10,7 @@ interface Cambio {
   nueva: string;
 }
 
-const LARGO = { min: 15, max: 64, message: 'Debe tener entre 15 y 64 caracteres.' };
+const LONGITUD_PERMITIDA = { min: 15, max: 64, message: 'Debe tener entre 15 y 64 caracteres.' };
 
 export function CambiarPassword() {
   const { usuario, recargar, salir } = useSesion();
@@ -46,7 +46,7 @@ export function CambiarPassword() {
           <Form.Item label="Contraseña actual" name="actual" rules={[{ required: true, message: 'Ingresá tu contraseña actual.' }]}>
             <Input.Password autoComplete="current-password" />
           </Form.Item>
-          <Form.Item label="Contraseña nueva" name="nueva" rules={[{ required: true, message: 'Ingresá la contraseña nueva.' }, LARGO]}>
+          <Form.Item label="Contraseña nueva" name="nueva" rules={[{ required: true, message: 'Ingresá la contraseña nueva.' }, LONGITUD_PERMITIDA]}>
             <Input.Password autoComplete="new-password" />
           </Form.Item>
           <Form.Item
@@ -69,7 +69,7 @@ export function CambiarPassword() {
               Guardar
             </Button>
             {usuario?.debeCambiarPassword && (
-              <Button onClick={() => salir().catch((causa: unknown) => message.error(mensajeDeError(causa)))}>Cerrar sesión</Button>
+              <Button disabled={enviando} onClick={() => salir().catch((causa: unknown) => message.error(mensajeDeError(causa)))}>Cerrar sesión</Button>
             )}
           </Flex>
         </Form>

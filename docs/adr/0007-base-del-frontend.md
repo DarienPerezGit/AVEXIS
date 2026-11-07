@@ -1,7 +1,7 @@
 # 0007. Frontend base
 
 - Status: accepted
-- Date: 2026-11-07
+- Date: 2026-11-06
 - Ticket: #16
 
 ## Context
@@ -17,7 +17,7 @@ The assignment asks for React with TypeScript, a UI library (AntD, Chakra or Mat
 2. **In development, Vite proxies `/api` to the backend**, so the browser sees one origin, as it will in production. The cookie and the default CORS policy of the API work without changes.
    - Rejected: calling the API cross-origin in development. It would need `CORS_ORIGINS` and a different cookie setup from production.
 
-3. **One central guard, `ControlDeSesion`, decides where a user may be.** It reads `GET /api/auth/me`: no session goes to `/login`, `debeCambiarPassword` keeps the user on `/cambiar-password` without the menu, anyone else gets the layout. Pages do not repeat this.
+3. **The route guards in `App.tsx` decide where a user may be, led by `ControlDeSesion`.** It reads `GET /api/auth/me`: no session goes to `/login`, `debeCambiarPassword` keeps the user on `/cambiar-password` without the menu, anyone else gets the layout. Pages do not repeat this. If `/me` fails for any other reason, the session is unknown rather than over, so the app offers to retry instead of showing the login.
 
 4. **Only a 401 `UNAUTHORIZED` ends the session in the browser.** A 401 `INVALID_CREDENTIALS` is a wrong password in a form, on login and on the password change, so it reaches the form like any other error.
 

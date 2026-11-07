@@ -35,6 +35,12 @@ describe('api', () => {
     await expect(api('/auth/me')).rejects.toMatchObject({ status: 502, code: 'UNEXPECTED_RESPONSE' });
   });
 
+  it('does not break on an error answer in JSON that is not the API contract', async () => {
+    simularApi({ 'GET /api/auth/me': [502, { mensaje: 'gateway' }] });
+
+    await expect(api('/auth/me')).rejects.toMatchObject({ status: 502, code: 'UNEXPECTED_RESPONSE' });
+  });
+
   it('reports a network failure as an ApiError too', async () => {
     vi.stubGlobal('fetch', async () => {
       throw new TypeError('Failed to fetch');

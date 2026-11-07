@@ -70,9 +70,9 @@ Tests render the real app with Testing Library and replace only `fetch` (`simula
 | Component or module | Test file | What it checks |
 |---|---|---|
 | `api.ts` | `api.test.ts` | Cookie and JSON body, 204, API errors, non-JSON answers, network failures, which 401 ends the session |
-| `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` |
+| `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` (no form uses this yet: login and password errors carry no `details`; the forms of #18 to #20 will) |
 | `permisos.ts` | `permisos.test.ts` | Each profile on each permission |
-| `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, forced password change, no-permission page |
+| `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, retry when `/auth/me` fails, forced password change, no-permission page |
 | `AppLayout.tsx` | `App.test.tsx` | Menu by role, logout, voluntary password change |
 | `pages/Login.tsx` | `pages/Login.test.tsx` | Successful login, errors shown in the form, required fields |
 | `pages/CambiarPassword.tsx` | `pages/CambiarPassword.test.tsx` | Length and confirmation in the browser, wrong current password, successful change, logout |

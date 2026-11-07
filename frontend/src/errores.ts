@@ -12,6 +12,7 @@ const MENSAJES: Record<string, string> = {
   FORBIDDEN: 'No tenés permiso para hacer esto.',
   NOT_FOUND: 'No se encontró lo que buscabas.',
   UNAUTHORIZED: 'Tu sesión terminó. Volvé a entrar.',
+  PASSWORD_CHANGE_REQUIRED: 'Tenés que cambiar tu contraseña antes de seguir.',
   CLIENTE_HAS_EXPEDIENTES: 'No se puede eliminar un cliente que tiene expedientes.',
   CANNOT_CHANGE_OWN_ACCESS: 'No podés cambiar tu propio acceso.',
 };

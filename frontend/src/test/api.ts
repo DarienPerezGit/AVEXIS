@@ -2,9 +2,9 @@ import { vi } from 'vitest';
 
 type Respuesta = [status: number, cuerpo?: unknown];
 
-const error = (code: string, status: number): Respuesta => [status, { error: { code, message: 'English text' } }];
+export const errorDeApi = (code: string, status: number): Respuesta => [status, { error: { code, message: 'English text' } }];
 
-export const SIN_SESION = error('UNAUTHORIZED', 401);
+export const SIN_SESION = errorDeApi('UNAUTHORIZED', 401);
 
 /**
  * Replaces `fetch`, the boundary with the API, so tests render real components against answers of the real shape.
@@ -16,11 +16,10 @@ export function simularApi(rutas: Record<string, Respuesta>) {
   vi.stubGlobal('fetch', async (url: string, init?: RequestInit) => {
     const ruta = `${init?.method ?? 'GET'} ${url}`;
     llamadas.push({ ruta, init, body: init?.body ? JSON.parse(init.body as string) : undefined });
-    const [status, cuerpo] = rutas[ruta] ?? error('NOT_FOUND', 404);
+    const [status, cuerpo] = rutas[ruta] ?? errorDeApi('NOT_FOUND', 404);
     return new Response(cuerpo === undefined ? null : JSON.stringify(cuerpo), { status });
   });
 
   return { rutas, llamadas, rutasLlamadas: () => llamadas.map((llamada) => llamada.ruta) };
 }
 
-export { error as errorDeApi };

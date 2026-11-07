@@ -10,6 +10,7 @@ describe('mensajeDeError', () => {
     ['ACCOUNT_DISABLED', 403, 'Tu cuenta está desactivada. Hablá con el titular del estudio.'],
     ['TOO_MANY_REQUESTS', 429, 'Demasiados intentos fallidos. Esperá unos minutos.'],
     ['DUPLICATE_KEY', 409, 'Ya existe un registro con esos datos.'],
+    ['PASSWORD_CHANGE_REQUIRED', 403, 'Tenés que cambiar tu contraseña antes de seguir.'],
   ])('translates %s by its code, whatever the English message says', (code, status, expected) => {
     expect(mensajeDeError(new ApiError(status, code, 'Some English text'))).toBe(expected);
   });

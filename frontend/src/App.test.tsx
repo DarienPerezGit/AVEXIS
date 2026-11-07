@@ -2,7 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { api } from './api';
-import { SIN_SESION, simularApi } from './test/api';
+import { SIN_SESION, errorDeApi, simularApi } from './test/api';
 import { renderApp } from './test/render';
 import { ABOGADO, ASISTENTE, TITULAR } from './test/usuarios';
 
@@ -46,6 +46,22 @@ describe('session control', () => {
     await act(() => api('/expedientes').catch(() => {}));
 
     expect(await botonDeLogin()).toBeInTheDocument();
+  });
+});
+
+describe('when the API fails while reading the session', () => {
+  it('offers to retry instead of sending to the login, since the session may be fine', async () => {
+    const simulada = simularApi({ 'GET /api/auth/me': errorDeApi('INTERNAL_ERROR', 500) });
+    renderApp();
+
+    const reintentar = await screen.findByRole('button', { name: 'Reintentar' });
+    expect(screen.getByText('No pudimos conectar con el servidor.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Entrar' })).not.toBeInTheDocument();
+
+    simulada.rutas['GET /api/auth/me'] = [200, { usuario: ABOGADO }];
+    await userEvent.click(reintentar);
+
+    expect(await titulo('Agenda')).toBeInTheDocument();
   });
 });
 

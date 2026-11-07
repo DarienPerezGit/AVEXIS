@@ -1,4 +1,4 @@
-import { Result, Spin, Typography } from 'antd';
+import { Button, Result, Spin, Typography } from 'antd';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import { AppLayout } from './AppLayout';
 import { CambiarPassword } from './pages/CambiarPassword';
@@ -8,13 +8,16 @@ import { useSesion } from './sesion';
 
 const RUTA_CAMBIO = '/cambiar-password';
 
-/** The one place that decides where a user may be, so no page repeats it. */
+/** Decides where a user may be, so no page repeats it. */
 function ControlDeSesion() {
-  const { usuario, cargando } = useSesion();
+  const { usuario, cargando, falloLaCarga, cargar } = useSesion();
   const { pathname } = useLocation();
 
   if (cargando) {
     return <Spin fullscreen />;
+  }
+  if (falloLaCarga) {
+    return <Result status="error" title="No pudimos conectar con el servidor." extra={<Button onClick={cargar}>Reintentar</Button>} />;
   }
   if (!usuario) {
     return <Navigate to="/login" replace />;

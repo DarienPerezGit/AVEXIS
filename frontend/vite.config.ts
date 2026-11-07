@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
-        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/vite-env.d.ts'],
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
         reporter: ['text', 'html', 'lcov'],
         reportsDirectory: './coverage',
         // The assignment's floor. It rises once every page exists (ADR 0007).
