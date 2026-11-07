@@ -71,10 +71,13 @@ Tests render the real app with Testing Library and replace only `fetch` (`simula
 |---|---|---|
 | `api.ts` | `api.test.ts` | Cookie and JSON body, 204, API errors, non-JSON answers, network failures, which 401 ends the session |
 | `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` (no form uses this yet: login and password errors carry no `details`; the forms of #18 to #20 will) |
-| `permisos.ts` | `permisos.test.ts` | Each profile on each permission |
+| `permisos.ts` | `permisos.test.ts` | Each profile on each permission: users, opening a case, picking the lawyer |
 | `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, retry when `/auth/me` fails, forced password change, no-permission page |
 | `AppLayout.tsx` | `App.test.tsx` | Menu by role, logout, voluntary password change |
 | `pages/Login.tsx` | `pages/Login.test.tsx` | Successful login, errors shown in the form, required fields |
 | `pages/CambiarPassword.tsx` | `pages/CambiarPassword.test.tsx` | Length and confirmation in the browser, wrong current password, successful change, logout |
+| `pages/Agenda.tsx` and `pages/agenda/*` | `pages/Agenda.test.tsx` | A day stored as UTC midnight shows on its own day in Argentina; three per day and "+N más"; months and Hoy; a day's detail; the alert's color and wording; list, filters and search; link to the case only with access; held and cancelled (after confirming); adding from a day or from the top, with the lawyer chosen only by owner and assistant and the API's rejected fields marked; retry when loading fails |
+
+Agenda tests fix the date (`vi.useFakeTimers({ toFake: ['Date'] })`) and run in `America/Argentina/Buenos_Aires` (`test.env.TZ` in `vite.config.ts`), so a day read through `new Date()` fails on any machine. Under test, Ant Design gives every modal the same `aria-labelledby` id, so the agenda tests find a modal by its title (`dialogo` in the test file).
 
 Every component written so far has a test, above the 30% the assignment requires.

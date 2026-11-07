@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
 afterEach(() => {
@@ -24,3 +24,9 @@ window.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 };
+
+// Deciding whether an element is hidden reads its computed style and its ancestors'. Under jsdom that walks every rule
+// Ant Design injects, so one role query took seconds once a page held a calendar. Queries skip that check; a page hides
+// what a role cannot use by not rendering it, which every `queryBy...` still notices.
+// The first render of a file can take over a second under coverage, the default wait of `findBy...`.
+configure({ defaultHidden: true, asyncUtilTimeout: 5000 });
