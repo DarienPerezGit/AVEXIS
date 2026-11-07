@@ -1,6 +1,6 @@
 # Testing
 
-How the backend is tested, and which test covers each route. Decisions: ADR 0006.
+How the backend is tested, and which test covers each route. Decisions: ADR 0006. The frontend is at the end of this page.
 
 ## Running
 
@@ -60,3 +60,21 @@ Paths are relative to `backend/src/`. Cross-cutting tests in `app.routes.test.ts
 | `GET /api/docs`, `/api/docs/openapi.json` | `docs/docs.test.ts` | Swagger UI and the OpenAPI document are served; contract tests compare them with the real routes | — (static pages) |
 
 Besides routes: `seed/seed-demo.test.ts` and `usuarios/titular-inicial.test.ts` cover the seed and the initial-owner scripts, `errors.test.ts` covers the error handler and the error log file, and the `models/*.test.ts` files cover schema validation.
+
+## Frontend
+
+Inside `frontend/`: `npm test` runs every test once, and `npm run test:coverage` also writes the report to `frontend/coverage/`. It fails below 40% of statements, the assignment's floor (ADR 0007).
+
+Tests render the real app with Testing Library and replace only `fetch` (`simularApi` in `src/test/api.ts`), so they check what a user sees against answers of the real shape.
+
+| Component or module | Test file | What it checks |
+|---|---|---|
+| `api.ts` | `api.test.ts` | Cookie and JSON body, 204, API errors, non-JSON answers, network failures, which 401 ends the session |
+| `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` |
+| `permisos.ts` | `permisos.test.ts` | Each profile on each permission |
+| `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, forced password change, no-permission page |
+| `AppLayout.tsx` | `App.test.tsx` | Menu by role, logout, voluntary password change |
+| `pages/Login.tsx` | `pages/Login.test.tsx` | Successful login, errors shown in the form, required fields |
+| `pages/CambiarPassword.tsx` | `pages/CambiarPassword.test.tsx` | Length and confirmation in the browser, wrong current password, successful change, logout |
+
+Every component written so far has a test, above the 30% the assignment requires.

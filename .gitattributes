@@ -1,2 +1,3 @@
 # Generated coverage report: versioned for the assignment, hidden from diffs and language stats.
 backend/coverage/** linguist-generated=true -diff
+frontend/coverage/** linguist-generated=true -diff

@@ -4,7 +4,7 @@ Trabajo Práctico Final de Programación III (UTN, 2026). Cátedra: Prof. Ing. G
 
 AVEXIS organiza el trabajo diario de un estudio jurídico: clientes, expedientes, movimientos procesales, audiencias, vencimientos y honorarios. Cada instalación sirve a un solo estudio.
 
-**Estado:** el backend está terminado y se usa por API o desde Swagger UI. El frontend todavía no existe, así que este README cubre solo `backend/`.
+**Estado:** el backend está terminado. El frontend ya permite entrar, cambiar la contraseña y navegar según el perfil; las páginas de agenda, expedientes, clientes y usuarios se están construyendo.
 
 ## Cómo funciona
 
@@ -44,7 +44,9 @@ Los términos están definidos en [`GLOSSARY.md`](GLOSSARY.md).
 
 ## Stack
 
-Node.js, Express 5, TypeScript, MongoDB Atlas con Mongoose, JWT en cookie `httpOnly`, Zod, Pino, Vitest, Supertest y Swagger UI.
+**Backend:** Node.js, Express 5, TypeScript, MongoDB Atlas con Mongoose, JWT en cookie `httpOnly`, Zod, Pino, Vitest, Supertest y Swagger UI.
+
+**Frontend:** React, TypeScript, Vite, Ant Design, React Router, Vitest y Testing Library.
 
 ## Levantar el proyecto
 
@@ -69,7 +71,7 @@ cd AVEXIS/backend
 npm install
 ```
 
-Todos los comandos de este README se corren dentro de `backend/`.
+Los comandos de estos pasos se corren dentro de `backend/`. El frontend tiene su propio paso, el 8.
 
 ### 4. Configurar `.env`
 
@@ -122,6 +124,26 @@ Si el puerto 3000 está ocupado, el proceso muestra el error y no arranca. Cambi
 
 La documentación interactiva está en <http://localhost:3000/api/docs>. Para usarla, ejecutá `POST /api/auth/login` con uno de los usuarios de demo: la sesión queda en una cookie y las demás rutas ya funcionan desde la misma página.
 
+### 8. Levantar el frontend
+
+Con el backend andando, abrí otra terminal:
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+La app queda en <http://localhost:5173>. Vite reenvía `/api` al backend, así que navegador y API comparten un solo origen y la cookie de sesión funciona sin configurar nada más.
+
+| Variable | Valor |
+|---|---|
+| `VITE_API_URL` | Ruta base de la API. Por defecto, `/api`. |
+| `VITE_PROXY_TARGET` | Adónde reenvía Vite las llamadas. Si cambiaste `PORT` en el backend, cambialo acá también. |
+
+Las variables `VITE_` terminan en el código que descarga el navegador: nunca pongas un secreto ahí.
+
 ## Usuarios de demostración
 
 Los crea `npm run seed`. Todos usan la contraseña `demo avexis 2026`, que es pública y solo existe en los datos de demo.
@@ -135,6 +157,8 @@ Los crea `npm run seed`. Todos usan la contraseña `demo avexis 2026`, que es p�
 
 ## Comandos
 
+Dentro de `backend/`:
+
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Inicia el servidor y lo reinicia con cada cambio. |
@@ -147,6 +171,18 @@ Los crea `npm run seed`. Todos usan la contraseña `demo avexis 2026`, que es p�
 | `npm run typecheck` | Verifica los tipos de TypeScript. |
 | `npm run build` | Hace la misma verificación de tipos: el servidor corre el TypeScript directamente con `tsx`. |
 
+Dentro de `frontend/`:
+
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Inicia la app con recarga automática. |
+| `npm run build` | Verifica los tipos y genera la versión de producción en `dist/`. |
+| `npm run preview` | Sirve localmente la versión generada por `build`. |
+| `npm test` | Corre todos los tests una vez. |
+| `npm run test:watch` | Corre los tests cada vez que cambia un archivo. |
+| `npm run test:coverage` | Corre los tests y genera el reporte de cobertura. Falla por debajo del 40%. |
+| `npm run typecheck` | Verifica los tipos de TypeScript. |
+
 ## Tests
 
 ```bash
@@ -154,9 +190,9 @@ npm test
 npm run test:coverage
 ```
 
-Los tests no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más.
+Corren igual dentro de `backend/` y de `frontend/`. Los del backend no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más.
 
-El enunciado pide 40% de cobertura de statements, y el proyecto exige 90% para detectar código nuevo sin tests. El reporte está versionado en [`backend/coverage/`](backend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
+El enunciado pide 40% de cobertura de statements, y el proyecto exige 90% para detectar código nuevo sin tests. Los reportes están versionados en [`backend/coverage/`](backend/coverage/index.html) y [`frontend/coverage/`](frontend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
 
 ## Instalación real
 
