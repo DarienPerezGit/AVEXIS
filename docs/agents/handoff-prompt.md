@@ -26,13 +26,15 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 | `b377b9e` | #8 (closed): coverage threshold 90%, versioned report, route inventory in `docs/testing.md` |
 | `c7644a9`, `767cbf7` | #12 (closed): README rewritten and verified against Atlas; `server.ts` reports listen failures |
 
-- Suite: 161 tests green, coverage about 95% of statements (threshold 90%) (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
+In review, not on `main` until its PR merges: #15 on branch `feat/15-datos-frontend`. GET routes expand references (`conNombre` in `src/http/populate.ts`); POST and PATCH keep answering ids; `GET /api/usuarios/abogados` is new. ADR 0002 decisions 9 and 10.
+
+- Suite: 170 tests green, coverage about 95% of statements (threshold 90%) (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
 - Alert design: `docs/adr/0003-alerta-de-vencimientos.md`. Days are counted in Argentina (`src/audiencias/calendario.ts`); audiencia `fecha` is `YYYY-MM-DD` only. `createApp({ clock })` injects time; tests use `createTestApp({}, { clock })`.
 - Seed design: `docs/adr/0004-seed-de-demo-y-titular-inicial.md`. Demo users share `demo avexis 2026` (README section 6). `npm run seed` empties the database in `MONGODB_URI`: never run it against data you want to keep.
 - API docs: `docs/adr/0005-documentacion-openapi.md`. Every new route must be added to `src/docs/openapi.ts` (and its router to the table in `src/routes.ts`); `src/docs/docs.test.ts` fails on any undocumented or invented route.
 - Testing: `docs/testing.md` (route inventory) and ADR 0006. Run `npm run test:coverage` before each delivery commit to refresh the versioned `backend/coverage/` report; add a row to the inventory for any new route.
 - Error contract: `{ error: { code, message, details? } }` via `AppError`; `details: [{ path, message }]` only on `VALIDATION_ERROR`.
-- REST design: `docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md`. The permission matrix lives only in `src/access/policies.ts` (`expedientesVisibles`, `agendaVisible`, `findExpedienteAccesible`, `findExpedienteConAccesoEconomico`, `findAudienciaAccesible`, `abogadoParaAlta`/`abogadoParaCambio`, `assertAbogadoActivo`). Validate input with `parse(schema, input)` from `src/http/validation.ts`. Check order: auth, role, 404, 403, 400. Tests: `crearEstudio()` gives one logged-in agent per matrix cell, plus `crearCliente`, `crearExpediente`.
+- REST design: `docs/adr/0002-endpoints-rest-y-matriz-de-permisos.md`. The permission matrix lives only in `src/access/policies.ts` (`expedientesVisibles`, `agendaVisible`, `findExpedienteAccesible`, `findExpedienteConAccesoEconomico`, `findAudienciaAccesible`, `abogadoParaAlta`/`abogadoParaCambio`, `assertAbogadoActivo`, `listarAbogadosAsignables`). Validate input with `parse(schema, input)` from `src/http/validation.ts`. Check order: auth, role, 404, 403, 400. Tests: `crearEstudio()` gives one logged-in agent per matrix cell, plus `crearCliente`, `crearExpediente`.
 - Auth design: `docs/adr/0001-autenticacion-y-autorizacion.md`. Domain terms: `GLOSSARY.md` (titular, procuracion...). Key points:
   - JWT `{ sub, ver }` in an `httpOnly` + `Secure` + `SameSite=Strict` session cookie, 8 h, no refresh. `authenticate` reloads the user each request; `ver` (`versionSesion`) bumps on password change/reset and ends other sessions.
   - Roles `ABOGADO` / `ASISTENTE` + `esTitular` (ABOGADO only). Only the titular manages users (`/api/usuarios`); no public sign-up. New/reset users get `debeCambiarPassword` (403 `PASSWORD_CHANGE_REQUIRED` except `/me` and `/me/password`).
@@ -41,8 +43,8 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 - Skills: the user's skills in `C:\Users\PC\.agents\skills` are linked as junctions into `C:\Users\PC\.claude\skills` (Claude Code only reads `~/.claude/skills` and `<repo>/.claude/skills`). The user's `code-review` collides with a built-in; `/review` is the same skill.
 
 ### Next steps, in order
-1. #15 backend data for the frontend. It is the only backend change left: after it the backend is final, apart from small fixes.
-2. #16 frontend base, then #17 agenda, #18 expedientes, #19 clientes, #20 usuarios. Scope and components are in each ticket; #6 is closed.
+1. Merge the #15 PR. It is the only backend change left: after it the backend is final, apart from small fixes.
+2. #16 frontend base (blocked by #15), then #17 agenda, #18 expedientes, #19 clientes, #20 usuarios. Scope and components are in each ticket; #6 is closed.
 3. Update the README with the frontend commands. Close #4 and update map #1.
 4. #13 deploy only if time remains: it is optional in the PDF. The backend does not serve the frontend yet, and a proxy needs `trust proxy` for the login limiter.
 5. Before delivery: `npm run test:coverage`, re-run the seed, rotate the Atlas password and move off the `atlasAdmin` user.
@@ -65,7 +67,7 @@ The user has less than a month, and the repo link goes to the teacher at least a
 - The sandbox blocks local sockets, network and writes to `.git`: run tests, `npm install`, git and `gh` with the sandbox bypass.
 - Always run `npm`/`npx` inside `backend/`. Never `npm install` from the repo root or `C:\Users\PC` (that `package.json` belongs to another project; don't touch it).
 - The PDF filename has decomposed accents; copy it to the scratchpad with an ASCII name to read it.
-- Engram needs `project=tp-final`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`, `decision/avexis-frontend-scope`, `decision/avexis-audiencia-populate`, `decision/avexis-frontend-auth-flow`, `decision/avexis-frontend-usuarios`, `decision/avexis-frontend-errors`.
+- Engram needs `project=tp-final`, also on `mem_get_observation`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`, `decision/avexis-frontend-scope`, `decision/avexis-audiencia-populate`, `decision/avexis-frontend-auth-flow`, `decision/avexis-frontend-usuarios`, `decision/avexis-frontend-errors`.
 - `vitest.config.ts` raises the test timeout to 30 s: every domain test logs in four users through bcrypt cost 12 while files run in parallel.
 - Heredocs through the Bash tool can collapse `\\` into `\`; write files with regexes or escaped quotes using the Write/Edit tools.
 - On Windows, killing a background `npm run dev` by its shell pid leaves the `tsx` child alive and holding the port; stop it through the listening process and its parent.
@@ -83,13 +85,13 @@ Continua AVEXIS (TP Final Programacion III, UTN). Responde en espanol, corto, un
 
 Contexto: lee docs/agents/handoff-prompt.md (seccion 1), GLOSSARY.md y los ADR de docs/adr/ que toque el ticket. En Engram (project=tp-final) busca decision/avexis-frontend-scope, decision/avexis-audiencia-populate, decision/avexis-frontend-auth-flow, decision/avexis-frontend-usuarios y decision/avexis-frontend-errors. El PDF del enunciado en la raiz es la especificacion.
 
-Estado: backend terminado y publicado; #6 cerrado con el alcance del frontend; tickets #15 a #20 creados. Falta todo el frontend, que no existe todavia.
+Estado: backend terminado; #15 en PR (rama feat/15-datos-frontend); #6 cerrado con el alcance del frontend; tickets #16 a #20 creados. Falta todo el frontend, que no existe todavia.
 
 Haz esto, en orden:
 1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ npm run typecheck y npm test. gh auth status debe mostrar DarienPerezGit activo.
-2. Toma el #15 (gh issue view 15). Crea la rama feat/15-datos-frontend antes del primer commit e incluye ahi este handoff actualizado, que quedo sin commitear. Nunca commitees directo a main: cada ticket lleva rama corta y PR a main.
+2. Confirma que el PR del #15 este mergeado y actualiza main. Toma el #16 (gh issue view 16). Crea la rama feat/16-base-frontend desde main antes del primer commit. Nunca commitees directo a main: cada ticket lleva rama corta y PR a main.
 3. Antes de escribir tests, propone que probar y espera mi confirmacion. Usa los skills tdd y code-review.
-4. Al terminar: typecheck, suite completa, cobertura, code-review, PR, y actualiza Engram y este handoff. Despues sigue con el #16.
+4. Al terminar: typecheck, suite completa, cobertura, code-review, PR, y actualiza Engram y este handoff. Despues sigue con el #17.
 
 Reglas: npm/npx siempre dentro de backend/ o frontend/, nunca npm install desde la raiz ni desde C:/Users/PC, y no toques C:/Users/PC/package.json. npm run seed vacia la base: no lo corras contra datos que quieras conservar. Nunca escribas la password de Atlas ni imprimas la URI. sechu-szlit y la maqueta son solo referencia: no copies codigo ni los emails reales de la maqueta. En PowerShell cita "@me".
 ```
