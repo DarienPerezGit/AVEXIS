@@ -23,7 +23,7 @@ The assignment asks for at least 40% of statements. The project's threshold is 9
 
 ## Route inventory
 
-Every route has a Supertest test for its happy case, and 26 of the 28 also for an error response. The two without one are logout, which is public and always answers 204, and the documentation pages. That is well above the 50% the assignment requires.
+Every route has a Supertest test for its happy case, and 27 of the 29 also for an error response. The two without one are logout, which is public and always answers 204, and the documentation pages. That is well above the 50% the assignment requires.
 
 Paths are relative to `backend/src/`. Cross-cutting tests in `app.routes.test.ts` also check 401 without a session, 403 `PASSWORD_CHANGE_REQUIRED`, and 400 `INVALID_ID` on the domain routes.
 
@@ -35,6 +35,7 @@ Paths are relative to `backend/src/`. Cross-cutting tests in `app.routes.test.ts
 | `GET /api/auth/me` | `auth/auth.test.ts` | Returns the user without the password hash | 401 without cookie, expired or forged token, or deactivated user |
 | `PATCH /api/auth/me/password` | `auth/auth.test.ts` | Changes it, clears the forced-change flag, ends other sessions | 401 wrong current password; 400 weak new password |
 | `GET /api/usuarios` | `usuarios/usuarios.test.ts` | Lists every user without hashes | 403 for a non-owner |
+| `GET /api/usuarios/abogados` | `usuarios/usuarios.test.ts` | Owner and assistant get active lawyers by name, only `_id` and `nombre` | 403 plain lawyer; the assistant stays out of every other user route |
 | `POST /api/usuarios` | `usuarios/usuarios.test.ts` | Creates a user who must change the password | 403 non-owner; 409 duplicate email; 400 weak password or assistant as owner |
 | `PATCH /api/usuarios/:id` | `usuarios/usuarios.test.ts` | Updates role, owner status and active status | 409 owner changing own access; 400 invalid combination; 404 unknown user |
 | `POST /api/usuarios/:id/reset-password` | `usuarios/usuarios.test.ts` | Sets a new initial password and ends the user's sessions | 404 unknown user; 400 weak password; 403 non-owner |
@@ -43,18 +44,18 @@ Paths are relative to `backend/src/`. Cross-cutting tests in `app.routes.test.ts
 | `GET /api/clientes/:id` | `clientes/clientes.test.ts` | Returns the client | 404 unknown; 400 malformed id |
 | `PATCH /api/clientes/:id` | `clientes/clientes.test.ts` | Corrects contact details, identity fields ignored | 400 invalid email |
 | `DELETE /api/clientes/:id` | `clientes/clientes.test.ts` | 204 for a client without cases (owner) | 409 `CLIENTE_HAS_EXPEDIENTES`; 403 lawyer and assistant |
-| `GET /api/expedientes` | `expedientes/expedientes.test.ts` | Role visibility; pagination with total; combined filters | 400 `limit` above 100 or `page` below 1 |
+| `GET /api/expedientes` | `expedientes/expedientes.test.ts` | Role visibility; pagination with total; combined filters; client and lawyer names | 400 `limit` above 100 or `page` below 1 |
 | `POST /api/expedientes` | `expedientes/expedientes.test.ts` | Lawyer's case is always theirs; owner assigns anyone | 403 assistant; 400 unknown client or non-lawyer in charge; 409 duplicate number |
-| `GET /api/expedientes/:id` | `expedientes/expedientes.test.ts` | Own case; assistant sees any | 403 another lawyer's case; 404 unknown |
+| `GET /api/expedientes/:id` | `expedientes/expedientes.test.ts` | Own case; assistant sees any; client and lawyer names | 403 another lawyer's case; 404 unknown |
 | `PATCH /api/expedientes/:id` | `expedientes/expedientes.test.ts` | Updates and archives; owner reassigns | 403 other lawyer and assistant; 404 unknown; 400 invalid estado or non-lawyer |
-| `GET /api/expedientes/:id/movimientos` | `movimientos/movimientos.test.ts` | Newest first, to whoever can access the case | 403 another lawyer's case |
+| `GET /api/expedientes/:id/movimientos` | `movimientos/movimientos.test.ts` | Newest first, to whoever can access the case; names who loaded each entry | 403 another lawyer's case |
 | `POST /api/expedientes/:id/movimientos` | `movimientos/movimientos.test.ts` | Assistant on any case, signed by the session | 403 another lawyer's case; 400 unknown tipo; 404 unknown case |
-| `GET /api/expedientes/:id/honorario` | `honorarios/honorarios.test.ts` | Responsible lawyer and owner see it with paid amount and balance | 403 other lawyer and assistant; 404 while there is no fee |
+| `GET /api/expedientes/:id/honorario` | `honorarios/honorarios.test.ts` | Responsible lawyer and owner see it with paid amount and balance; names who recorded each payment | 403 other lawyer and assistant; 404 while there is no fee |
 | `POST /api/expedientes/:id/honorario` | `honorarios/honorarios.test.ts` | Agrees the fee, ignoring an `estado` in the body | 409 second fee; 400 negative amount; 403 assistant |
 | `POST /api/expedientes/:id/honorario/pagos` | `honorarios/honorarios.test.ts` | Payments signed by the session; estado and balance derived | 404 without a fee; 400 non-positive amount; 403 assistant |
-| `GET /api/audiencias` | `audiencias/audiencias.test.ts`, `app.routes.test.ts` | Lawyer: attended plus own cases, never another lawyer's; owner and assistant: all, by date | 401 without a session; 403 `PASSWORD_CHANGE_REQUIRED` |
+| `GET /api/audiencias` | `audiencias/audiencias.test.ts`, `app.routes.test.ts` | Lawyer: attended plus own cases, never another lawyer's; owner and assistant: all, by date; case data and attendee name | 401 without a session; 403 `PASSWORD_CHANGE_REQUIRED` |
 | `POST /api/audiencias` | `audiencias/audiencias.test.ts` | Assistant picks the lawyer; a lawyer is pinned to themselves; fatal deadline | 403 another lawyer's case; 400 non-lawyer or inactive attendee, unknown case, bad hour, timestamp as fecha |
-| `GET /api/audiencias/proximas` | `audiencias/proximas.test.ts` | Days left, urgency, fatal first, today in Argentina, role visibility | 400 `dias` out of 1–30 |
+| `GET /api/audiencias/proximas` | `audiencias/proximas.test.ts` | Days left, urgency, fatal first, today in Argentina, role visibility; case data and attendee name | 400 `dias` out of 1–30 |
 | `PATCH /api/audiencias/:id` | `audiencias/audiencias.test.ts` | Reschedule, mark held, cancel; assistant reassigns; a lawyer's reassignment is ignored | 403 another lawyer; 404 unknown; 400 timestamp as fecha |
 | `GET /api/docs`, `/api/docs/openapi.json` | `docs/docs.test.ts` | Swagger UI and the OpenAPI document are served; contract tests compare them with the real routes | — (static pages) |
 

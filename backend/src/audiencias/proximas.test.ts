@@ -87,6 +87,23 @@ describe('GET /api/audiencias/proximas', () => {
     expect(await fechas(asistente)).toEqual(['2026-12-11', '2026-12-12']);
   });
 
+  it('brings the case and the attendee names, keeping the days left and the urgency', async () => {
+    const { abogado, usuarios } = await estudioConReloj();
+    const foreign = await crearExpediente(usuarios.otroAbogado._id, { numero: '77/2026', caratula: 'Soto c/ Vera' });
+    await crearAudiencia(foreign._id, usuarios.abogado._id, '2026-12-11');
+
+    const res = await abogado.get('/api/audiencias/proximas');
+
+    expect(res.body.audiencias[0]).toMatchObject({ diasRestantes: 1, urgente: true });
+    expect(res.body.audiencias[0].expedienteId).toEqual({
+      _id: foreign.id,
+      numero: '77/2026',
+      caratula: 'Soto c/ Vera',
+      abogadoResponsableId: usuarios.otroAbogado.id,
+    });
+    expect(res.body.audiencias[0].abogadoId).toEqual({ _id: usuarios.abogado.id, nombre: usuarios.abogado.nombre });
+  });
+
   it('widens the window with dias up to 30 and rejects values out of range', async () => {
     const { abogado, agendar } = await estudioConReloj();
     await agendar('2026-12-30');

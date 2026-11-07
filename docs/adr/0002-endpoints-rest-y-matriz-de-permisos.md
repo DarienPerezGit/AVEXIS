@@ -2,7 +2,7 @@
 
 - Status: accepted
 - Date: 2026-11-01
-- Tickets: #14 (PRD), #10
+- Tickets: #14 (PRD), #10, #15
 
 ## Context
 
@@ -28,6 +28,11 @@ ADR 0001 left the per-case permission matrix to the REST endpoints ticket. The a
 7. **`CEDULA` and `OFICIO` are movimiento types.** They are the core of procuracion (see `GLOSSARY.md`), the assistant's job; filing them under `OTRO` would make that work impossible to filter or count.
 
 8. **No hard deletes**, except a client loaded by mistake: cases are archived (`ARCHIVADO`), hearings cancelled (`CANCELADA`), movimientos and pagos are immutable. `DELETE /api/clientes/:id` is titular only and answers 409 `CLIENTE_HAS_EXPEDIENTES` once the client has cases.
+
+9. **GET responses expand references with limited fields; POST and PATCH keep answering ids (#15).** The client shows names without a request per row, and a field outside the list never reaches it. The expansion runs after the access check, which compares raw ids. One consequence is deliberate: a lawyer attending a hearing on a colleague's case sees its `numero` and `caratula`, because they must know what they attend, but still gets 403 on the case itself. The `abogadoResponsableId` that comes with it tells the agenda whether to link the case.
+   - Rejected: hiding the case data on those hearings. The lawyer would have a hearing in their agenda without knowing what it is about.
+
+10. **`GET /api/usuarios/abogados` is the only user route open beyond the titular.** The titular and the assistant assign lawyers, so they need the list, with `_id` and `nombre` only. A plain lawyer cannot assign anyone (decision 3) and gets 403.
 
 ## Status codes added
 

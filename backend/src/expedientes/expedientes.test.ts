@@ -113,6 +113,40 @@ describe('GET /api/expedientes', () => {
   });
 });
 
+describe('names on a case', () => {
+  async function expedienteConNombres() {
+    const estudio = await crearEstudio();
+    const cliente = await crearCliente({ nombre: 'Ruben Soto' });
+    const expediente = await crearExpediente(estudio.usuarios.abogado._id, { clienteId: cliente._id });
+    return {
+      ...estudio,
+      expediente,
+      nombres: {
+        clienteId: { _id: cliente.id, nombre: 'Ruben Soto' },
+        abogadoResponsableId: { _id: estudio.usuarios.abogado.id, nombre: estudio.usuarios.abogado.nombre },
+      },
+    };
+  }
+
+  it('come with the client and the responsible lawyer in the list, and nothing else of them', async () => {
+    const { abogado, nombres } = await expedienteConNombres();
+
+    const res = await abogado.get('/api/expedientes');
+
+    expect(res.body.data[0].clienteId).toEqual(nombres.clienteId);
+    expect(res.body.data[0].abogadoResponsableId).toEqual(nombres.abogadoResponsableId);
+  });
+
+  it('come with the client and the responsible lawyer in the detail, and nothing else of them', async () => {
+    const { abogado, expediente, nombres } = await expedienteConNombres();
+
+    const res = await abogado.get(`/api/expedientes/${expediente.id}`);
+
+    expect(res.body.expediente.clienteId).toEqual(nombres.clienteId);
+    expect(res.body.expediente.abogadoResponsableId).toEqual(nombres.abogadoResponsableId);
+  });
+});
+
 describe('GET /api/expedientes/:id', () => {
   it('returns an own case, 403 for another lawyer case and 404 for an unknown one', async () => {
     const { abogado, asistente, usuarios } = await crearEstudio();

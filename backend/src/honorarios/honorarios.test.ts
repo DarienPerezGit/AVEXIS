@@ -45,6 +45,17 @@ describe('GET /api/expedientes/:id/honorario', () => {
     expect((await asistente.post(url).send({ montoPactado: 1 })).status).toBe(403);
   });
 
+  it('names who recorded each payment, keeping the derived amounts', async () => {
+    const { abogado, usuarios, url } = await expedienteDeAna();
+    await abogado.post(url).send({ montoPactado: 500000 });
+    await abogado.post(`${url}/pagos`).send({ monto: 200000 });
+
+    const res = await abogado.get(url);
+
+    expect(res.body.honorario).toMatchObject({ estado: 'PARCIAL', montoPagado: 200000, saldo: 300000 });
+    expect(res.body.honorario.pagos[0].usuarioId).toEqual({ _id: usuarios.abogado.id, nombre: usuarios.abogado.nombre });
+  });
+
   it('responds 404 while the case has no fee', async () => {
     const { titular, url } = await expedienteDeAna();
 

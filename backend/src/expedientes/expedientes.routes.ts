@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { abogadoParaAlta, abogadoParaCambio, assertAbogadoActivo, expedientesVisibles, findExpedienteAccesible } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate, authorize } from '../auth/middleware.js';
+import { conNombre } from '../http/populate.js';
 import { objectId, parse, validationError } from '../http/validation.js';
 import { Cliente, EXPEDIENTE_ESTADOS, Expediente, FUEROS } from '../models/index.js';
 
@@ -29,6 +30,8 @@ export const listarExpedientesSchema = z.object({
 export const editarExpedienteSchema = crearExpedienteSchema
   .pick({ caratula: true, fuero: true, estado: true, observaciones: true, abogadoResponsableId: true })
   .partial();
+
+const POPULATE_NOMBRES = [conNombre('clienteId'), conNombre('abogadoResponsableId')];
 
 export function createExpedientesRouter(config: AuthConfig) {
   const router = Router();
@@ -58,14 +61,16 @@ export function createExpedientesRouter(config: AuthConfig) {
     };
 
     const [data, total] = await Promise.all([
-      Expediente.find(filter).sort({ fechaInicio: -1, _id: -1 }).skip((page - 1) * limit).limit(limit),
+      Expediente.find(filter).sort({ fechaInicio: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).populate(POPULATE_NOMBRES),
       Expediente.countDocuments(filter),
     ]);
     res.json({ data, page, limit, total });
   });
 
   router.get('/:id', async (req, res) => {
-    res.json({ expediente: await findExpedienteAccesible(req.usuario!, req.params.id) });
+    // Populated after the access check, which compares the raw ids.
+    const expediente = await findExpedienteAccesible(req.usuario!, req.params.id);
+    res.json({ expediente: await expediente.populate(POPULATE_NOMBRES) });
   });
 
   // No DELETE: a case is archived (estado ARCHIVADO) so its history is kept.

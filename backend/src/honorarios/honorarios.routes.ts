@@ -6,6 +6,7 @@ import type { UsuarioSesion } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate } from '../auth/middleware.js';
 import { AppError } from '../errors/app-error.js';
+import { conNombre } from '../http/populate.js';
 import { parse } from '../http/validation.js';
 import { Honorario } from '../models/index.js';
 import type { HonorarioDoc } from '../models/index.js';
@@ -42,7 +43,9 @@ export function createHonorariosRouter(config: AuthConfig) {
   router.use(authenticate(config));
 
   router.get<Params>('/', async (req, res) => {
-    res.json({ honorario: conSaldo(await findHonorario(req.usuario!, req.params.expedienteId)) });
+    // Populated here and not in findHonorario: POST /pagos shares it and must keep answering ids.
+    const honorario = await findHonorario(req.usuario!, req.params.expedienteId);
+    res.json({ honorario: conSaldo(await honorario.populate(conNombre('pagos.usuarioId'))) });
   });
 
   router.post<Params>('/', async (req, res) => {

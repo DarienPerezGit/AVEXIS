@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { listarAbogadosAsignables } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate, requireTitular } from '../auth/middleware.js';
 import { assertPasswordPolicy, hashPassword, replacePassword } from '../auth/password.js';
@@ -16,7 +17,14 @@ async function findUsuario(id: string) {
 /** User management. There is no public sign-up: only the firm owner creates users. */
 export function createUsuariosRouter(config: AuthConfig) {
   const router = Router();
-  router.use(authenticate(config), requireTitular);
+  router.use(authenticate(config));
+
+  // Declared before requireTitular: the assistant also assigns lawyers, so this is the one route open to them.
+  router.get('/abogados', async (req, res) => {
+    res.json({ abogados: await listarAbogadosAsignables(req.usuario!) });
+  });
+
+  router.use(requireTitular);
 
   router.post('/', async (req, res) => {
     // Fields are picked one by one, so a request cannot set activo or debeCambiarPassword itself.

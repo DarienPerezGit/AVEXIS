@@ -136,7 +136,7 @@ const schemas: Record<string, Schema> = {
   },
   AudienciaProxima: {
     allOf: [
-      ref('Audiencia'),
+      ref('AudienciaAgenda'),
       {
         type: 'object',
         properties: {
@@ -165,7 +165,42 @@ const schemas: Record<string, Schema> = {
       ...timestamps,
     },
   },
+  Nombrado: {
+    type: 'object',
+    description: 'A reference expanded with its name',
+    properties: { _id: id, nombre: { type: 'string' } },
+  },
 };
+
+/** What a GET answers: the same document as `base`, with some references expanded. POST and PATCH answer ids. */
+const expandido = (base: string, references: Schema): Schema => ({
+  ...schemas[base],
+  properties: { ...(schemas[base]!.properties as Schema), ...references },
+});
+
+schemas.ExpedienteConNombres = expandido('Expediente', { clienteId: ref('Nombrado'), abogadoResponsableId: ref('Nombrado') });
+schemas.MovimientoConNombre = expandido('Movimiento', { usuarioId: ref('Nombrado') });
+schemas.AudienciaAgenda = expandido('Audiencia', {
+  expedienteId: {
+    type: 'object',
+    properties: {
+      _id: id,
+      numero: { type: 'string' },
+      caratula: { type: 'string' },
+      abogadoResponsableId: { ...id, description: 'Tells the agenda whether this user can open the case' },
+    },
+  },
+  abogadoId: ref('Nombrado'),
+});
+schemas.HonorarioConNombres = expandido('Honorario', {
+  pagos: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: { monto: { type: 'number' }, fecha: { type: 'string', format: 'date-time' }, usuarioId: ref('Nombrado') },
+    },
+  },
+});
 
 const ERRORS: Record<number, string> = {
   400: 'Invalid input: VALIDATION_ERROR (with details), INVALID_ID or INVALID_JSON',
@@ -305,6 +340,14 @@ const PATHS: Record<string, Record<string, Operation>> = {
       errors: [400, 409],
     },
   },
+  '/api/usuarios/abogados': {
+    get: {
+      tag: 'Usuarios',
+      summary: 'List the active lawyers, to assign one',
+      roles: 'titular and ASISTENTE',
+      ok: [200, 'Active lawyers by name', { type: 'object', properties: { abogados: { type: 'array', items: ref('Nombrado') } } }],
+    },
+  },
   '/api/usuarios/{id}': {
     patch: {
       tag: 'Usuarios',
@@ -350,7 +393,7 @@ const PATHS: Record<string, Record<string, Operation>> = {
       roles: 'titular and ASISTENTE: every case; ABOGADO: own cases',
       description: 'Newest first. `q` is a text search on the caratula. Filters combine with the role visibility. `limit` above 100 answers 400.',
       query: listarExpedientesSchema,
-      ok: [200, 'One page of cases', { type: 'object', properties: { data: { type: 'array', items: ref('Expediente') }, page: { type: 'integer' }, limit: { type: 'integer' }, total: { type: 'integer' } } }],
+      ok: [200, 'One page of cases', { type: 'object', properties: { data: { type: 'array', items: ref('ExpedienteConNombres') }, page: { type: 'integer' }, limit: { type: 'integer' }, total: { type: 'integer' } } }],
       errors: [400],
     },
     post: {
@@ -364,7 +407,7 @@ const PATHS: Record<string, Record<string, Operation>> = {
     },
   },
   '/api/expedientes/{id}': {
-    get: { tag: 'Expedientes', summary: 'Get a case', roles: 'titular, ASISTENTE, or the responsible ABOGADO', ok: [200, 'The case', wrap('expediente', ref('Expediente'))], errors: [400, 404] },
+    get: { tag: 'Expedientes', summary: 'Get a case', roles: 'titular, ASISTENTE, or the responsible ABOGADO', ok: [200, 'The case', wrap('expediente', ref('ExpedienteConNombres'))], errors: [400, 404] },
     patch: {
       tag: 'Expedientes',
       summary: 'Update or archive a case',
@@ -376,7 +419,7 @@ const PATHS: Record<string, Record<string, Operation>> = {
     },
   },
   '/api/expedientes/{expedienteId}/movimientos': {
-    get: { tag: 'Movimientos', summary: 'List a case\'s entries, newest first', roles: OWN_CASE, ok: [200, 'Entries', list('movimientos', 'Movimiento')], errors: [400, 404] },
+    get: { tag: 'Movimientos', summary: 'List a case\'s entries, newest first', roles: OWN_CASE, ok: [200, 'Entries', list('movimientos', 'MovimientoConNombre')], errors: [400, 404] },
     post: {
       tag: 'Movimientos',
       summary: 'Record an entry',
@@ -388,7 +431,7 @@ const PATHS: Record<string, Record<string, Operation>> = {
     },
   },
   '/api/expedientes/{expedienteId}/honorario': {
-    get: { tag: 'Honorarios', summary: 'Get the case\'s fee with paid amount and balance', roles: 'the responsible ABOGADO and titular', ok: [200, 'The fee', wrap('honorario', ref('Honorario'))], errors: [400, 404] },
+    get: { tag: 'Honorarios', summary: 'Get the case\'s fee with paid amount and balance', roles: 'the responsible ABOGADO and titular', ok: [200, 'The fee', wrap('honorario', ref('HonorarioConNombres'))], errors: [400, 404] },
     post: {
       tag: 'Honorarios',
       summary: 'Agree the case\'s fee',
@@ -411,7 +454,7 @@ const PATHS: Record<string, Record<string, Operation>> = {
     },
   },
   '/api/audiencias': {
-    get: { tag: 'Audiencias', summary: 'Agenda', roles: 'titular and ASISTENTE: the whole firm; ABOGADO: hearings they attend and those on their own cases', ok: [200, 'Hearings by date', list('audiencias', 'Audiencia')] },
+    get: { tag: 'Audiencias', summary: 'Agenda', roles: 'titular and ASISTENTE: the whole firm; ABOGADO: hearings they attend and those on their own cases', ok: [200, 'Hearings by date', list('audiencias', 'AudienciaAgenda')] },
     post: {
       tag: 'Audiencias',
       summary: 'Schedule a hearing or deadline',

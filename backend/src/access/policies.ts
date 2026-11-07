@@ -33,9 +33,20 @@ export function abogadoParaCambio(usuario: UsuarioSesion, solicitado: string | u
   return actuaSoloSobreLoPropio(usuario) ? undefined : solicitado;
 }
 
+/** Who can carry a case or attend a hearing. */
+const ABOGADO_ACTIVO = { rol: 'ABOGADO', activo: true };
+
+/** The lawyers work can be assigned to, by name. Only who assigns to any lawyer may list them: the titular and the assistant. */
+export async function listarAbogadosAsignables(usuario: UsuarioSesion) {
+  if (actuaSoloSobreLoPropio(usuario)) {
+    throw new AppError(403, 'FORBIDDEN', 'Only the firm owner and assistants can list the lawyers');
+  }
+  return Usuario.find(ABOGADO_ACTIVO).select('nombre').sort({ nombre: 1 }).lean();
+}
+
 /** Only an active ABOGADO can carry a case or attend a hearing; anyone else is invalid input for `path`. */
 export async function assertAbogadoActivo(id: string, path: string) {
-  if (!(await Usuario.exists({ _id: id, rol: 'ABOGADO', activo: true }))) {
+  if (!(await Usuario.exists({ _id: id, ...ABOGADO_ACTIVO }))) {
     throw validationError([{ path, message: 'Must be an active lawyer of the firm' }]);
   }
 }

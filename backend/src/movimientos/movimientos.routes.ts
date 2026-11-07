@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { findExpedienteAccesible } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate } from '../auth/middleware.js';
+import { conNombre } from '../http/populate.js';
 import { parse } from '../http/validation.js';
 import { MOVIMIENTO_TIPOS, Movimiento } from '../models/index.js';
 
@@ -25,7 +26,7 @@ export function createMovimientosRouter(config: AuthConfig) {
 
   router.get<Params>('/', async (req, res) => {
     const expediente = await findExpedienteAccesible(req.usuario!, req.params.expedienteId);
-    const movimientos = await Movimiento.find({ expedienteId: expediente._id }).sort({ fecha: -1, _id: -1 });
+    const movimientos = await Movimiento.find({ expedienteId: expediente._id }).sort({ fecha: -1, _id: -1 }).populate(conNombre('usuarioId'));
     res.json({ movimientos });
   });
 

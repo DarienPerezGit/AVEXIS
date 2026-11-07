@@ -55,6 +55,17 @@ describe('GET /api/expedientes/:id/movimientos', () => {
     expect((await otroAbogado.get(url)).status).toBe(403);
   });
 
+  it('names who loaded each entry', async () => {
+    const { asistente, usuarios } = await crearEstudio();
+    const expediente = await crearExpediente(usuarios.abogado._id);
+    const url = `/api/expedientes/${expediente.id}/movimientos`;
+    await asistente.post(url).send({ tipo: 'CEDULA', descripcion: 'Se diligencia cedula' });
+
+    const res = await asistente.get(url);
+
+    expect(res.body.movimientos[0].usuarioId).toEqual({ _id: usuarios.asistente.id, nombre: usuarios.asistente.nombre });
+  });
+
   it('has no way to edit or delete an entry', async () => {
     const { titular, usuarios } = await crearEstudio();
     const expediente = await crearExpediente(usuarios.abogado._id);
