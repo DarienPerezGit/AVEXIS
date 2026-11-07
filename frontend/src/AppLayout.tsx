@@ -24,7 +24,8 @@ export function AppLayout() {
         <Typography.Title level={4} style={{ color: 'white', padding: 16, margin: 0 }}>
           AVEXIS
         </Typography.Title>
-        <Menu theme="dark" mode="inline" selectedKeys={[pathname]} items={secciones} />
+        {/* By the first segment, so a case's detail (/expedientes/:id) keeps Expedientes marked. */}
+        <Menu theme="dark" mode="inline" selectedKeys={[`/${pathname.split('/')[1]}`]} items={secciones} />
       </Layout.Sider>
       <Layout>
         <Layout.Header style={encabezado}>

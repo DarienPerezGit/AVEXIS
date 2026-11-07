@@ -3,6 +3,7 @@ import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import { AppLayout } from './AppLayout';
 import { Agenda } from './pages/Agenda';
 import { CambiarPassword } from './pages/CambiarPassword';
+import { ExpedienteDetalle } from './pages/ExpedienteDetalle';
 import { Expedientes } from './pages/Expedientes';
 import { Login } from './pages/Login';
 import { puedeAdministrarUsuarios } from './permisos';
@@ -55,6 +56,7 @@ export function App() {
       <Route element={<ControlDeSesion />}>
         <Route index element={<Agenda />} />
         <Route path="expedientes" element={<Expedientes />} />
+        <Route path="expedientes/:id" element={<ExpedienteDetalle />} />
         <Route path="clientes" element={<Pendiente titulo="Clientes" />} />
         <Route element={<SoloTitular />}>
           <Route path="usuarios" element={<Pendiente titulo="Usuarios" />} />

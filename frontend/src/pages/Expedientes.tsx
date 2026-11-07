@@ -1,6 +1,7 @@
 import { Alert, Button, Flex, Input, Select, Table, Tag, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { api } from '../api';
 import { opciones } from '../agenda';
 import { mensajeDeError } from '../errores';
@@ -46,6 +47,7 @@ const columnaAbogado: TableColumnsType<Expediente>[number] = { title: 'Abogado',
 /** The cases, a page at a time: the API paginates and filters, so the browser never loads them all. */
 export function Expedientes() {
   const { usuario } = useSesion();
+  const navigate = useNavigate();
   const [consulta, setConsulta] = useState<Consulta>({ page: 1 });
   const [pagina, setPagina] = useState<Pagina>({ data: [], total: 0 });
   const [cargando, setCargando] = useState(true);
@@ -102,6 +104,7 @@ export function Expedientes() {
         locale={{ emptyText: 'No hay expedientes que coincidan.' }}
         pagination={{ current: consulta.page, pageSize: POR_PAGINA, total: pagina.total, showSizeChanger: false }}
         onChange={({ current }) => setConsulta((antes) => ({ ...antes, page: current ?? 1 }))}
+        onRow={(e) => ({ onClick: () => navigate(`/expedientes/${e._id}`), style: { cursor: 'pointer' } })}
         scroll={{ x: true }}
       />
     </Flex>

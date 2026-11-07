@@ -24,6 +24,13 @@ export const puedeVerExpediente = (usuario: Usuario, expediente: { abogadoRespon
 /** Choosing who carries a case is a professional decision, so the assistant does not open cases (ADR 0001). */
 export const puedeAbrirExpedientes = (usuario: Usuario) => usuario.rol === 'ABOGADO';
 
+/** Whether a case can be edited or archived: by a lawyer who may open it, so the titular or its responsible lawyer. */
+export const puedeModificarExpediente = (usuario: Usuario, expediente: { abogadoResponsableId: string }) =>
+  puedeAbrirExpedientes(usuario) && puedeVerExpediente(usuario, expediente);
+
+/** Fees are economic data: only lawyers see them, and only on a case they can open (so the titular or its responsible). */
+export const veHonorarios = (usuario: Usuario) => usuario.rol === 'ABOGADO';
+
 /** Whether the case list holds other lawyers' cases, so it is worth showing who carries each. */
 export const veTodosLosExpedientes = (usuario: Usuario) => !actuaSoloSobreLoPropio(usuario);
 

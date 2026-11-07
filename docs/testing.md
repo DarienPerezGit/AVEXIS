@@ -71,12 +71,14 @@ Tests render the real app with Testing Library and replace only `fetch` (`simula
 |---|---|---|
 | `api.ts` | `api.test.ts` | Cookie and JSON body, 204, API errors, non-JSON answers, network failures, which 401 ends the session |
 | `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` (no form uses this yet: login and password errors carry no `details`; the forms of #18 to #20 will) |
-| `permisos.ts` | `permisos.test.ts` | Each profile on each permission: users, opening a case, picking the lawyer |
+| `permisos.ts` | `permisos.test.ts` | Each profile on each permission: users, seeing, opening and changing a case, fees, picking the lawyer |
 | `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, retry when `/auth/me` fails, forced password change, no-permission page |
 | `AppLayout.tsx` | `App.test.tsx` | Menu by role, logout, voluntary password change |
 | `pages/Login.tsx` | `pages/Login.test.tsx` | Successful login, errors shown in the form, required fields |
 | `pages/CambiarPassword.tsx` | `pages/CambiarPassword.test.tsx` | Length and confirmation in the browser, wrong current password, successful change, logout |
 | `pages/Agenda.tsx` and `pages/agenda/*` | `pages/Agenda.test.tsx` | A day stored as UTC midnight shows on its own day in Argentina; three per day and "+N más"; months and Hoy; a day's detail; the alert's color and wording; list, filters and search; link to the case only with access; held and cancelled (after confirming); adding from a day or from the top, with the lawyer chosen only by owner and assistant and the API's rejected fields marked; retry when loading fails |
+| `pages/Expedientes.tsx`, `pages/expedientes/NuevoExpediente.tsx` | `pages/Expedientes.test.tsx` | Columns, lawyer column hidden from a plain lawyer; search on Enter, estado and fuero filters and pages asked to the API; "Nuevo expediente" only for lawyers; a lawyer's case is theirs, the owner picks the lawyer; the start day travels as Argentine midnight; a duplicate number marked on its field |
+| `pages/ExpedienteDetalle.tsx`, `pages/expedientes/*` | `pages/ExpedienteDetalle.test.tsx` | Opens from a row; data with the start instant on the local day; edit and archive only for the owner and the responsible lawyer; movimientos newest first with nothing to edit, added by anyone; only this case's hearings, adding one with the case picked; fee, paid, balance and payments, a 404 offered as "Registrar honorario", payments; no fees tab for the assistant; unknown or another lawyer's case |
 
 Agenda tests fix the date (`vi.useFakeTimers({ toFake: ['Date'] })`) and run in `America/Argentina/Buenos_Aires` (`test.env.TZ` in `vite.config.ts`), so a day read through `new Date()` fails on any machine. Under test, Ant Design gives every modal the same `aria-labelledby` id, so the agenda tests find a modal by its title (`dialogo` in the test file).
 

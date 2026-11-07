@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { puedeAbrirExpedientes, puedeAdministrarUsuarios,puedeAsignarAbogado, puedeVerExpediente, veTodosLosExpedientes } from './permisos';
+import { puedeAbrirExpedientes, puedeAdministrarUsuarios,puedeAsignarAbogado, puedeModificarExpediente, puedeVerExpediente, veHonorarios, veTodosLosExpedientes } from './permisos';
 import { ABOGADO, ASISTENTE, TITULAR } from './test/usuarios';
 
 describe('puedeAdministrarUsuarios', () => {
@@ -38,6 +38,26 @@ describe('puedeAbrirExpedientes', () => {
     expect(puedeAbrirExpedientes(TITULAR)).toBe(true);
     expect(puedeAbrirExpedientes(ABOGADO)).toBe(true);
     expect(puedeAbrirExpedientes(ASISTENTE)).toBe(false);
+  });
+});
+
+describe('puedeModificarExpediente', () => {
+  it('is for the firm owner and the lawyer responsible for the case', () => {
+    expect(puedeModificarExpediente(TITULAR, { abogadoResponsableId: '9' })).toBe(true);
+    expect(puedeModificarExpediente(ABOGADO, { abogadoResponsableId: ABOGADO._id })).toBe(true);
+    expect(puedeModificarExpediente(ABOGADO, { abogadoResponsableId: '9' })).toBe(false);
+  });
+
+  it('is never for the assistant, who still sees every case', () => {
+    expect(puedeModificarExpediente(ASISTENTE, { abogadoResponsableId: ASISTENTE._id })).toBe(false);
+  });
+});
+
+describe('veHonorarios', () => {
+  it('is for lawyers, on a case they can open; never for the assistant', () => {
+    expect(veHonorarios(TITULAR)).toBe(true);
+    expect(veHonorarios(ABOGADO)).toBe(true);
+    expect(veHonorarios(ASISTENTE)).toBe(false);
   });
 });
 

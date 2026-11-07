@@ -170,10 +170,15 @@ describe('new case', () => {
 
     await completar(formulario);
     await elegir('Abogado responsable', 'Ana Diaz', formulario);
+    await userEvent.type(formulario.getByLabelText('Fecha de inicio'), '2026-03-02');
     await userEvent.click(formulario.getByRole('button', { name: 'Guardar' }));
 
     await waitFor(() => expect(api.rutasLlamadas()).toContain('POST /api/expedientes'));
-    expect(api.llamadas.find((llamada) => llamada.ruta === 'POST /api/expedientes')?.body).toMatchObject({ abogadoResponsableId: ABOGADO._id });
+    // The start is an instant: the day picked travels as midnight in Argentina, so it shows back as that day.
+    expect(api.llamadas.find((llamada) => llamada.ruta === 'POST /api/expedientes')?.body).toMatchObject({
+      abogadoResponsableId: ABOGADO._id,
+      fechaInicio: '2026-03-02T03:00:00.000Z',
+    });
   });
 
   it('marks the number when another case already has it', async () => {
