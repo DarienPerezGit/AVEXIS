@@ -28,9 +28,12 @@ Single source of truth to continue in a new chat. Section 1 is the state; sectio
 
 #15 (closed, PR #21): GET routes expand references (`conNombre` in `src/http/populate.ts`); POST and PATCH keep answering ids; `GET /api/usuarios/abogados` is new. ADR 0002 decisions 9 and 10.
 
-In review, not on `main` until its PR merges: #16 on branch `feat/16-base-frontend`. Vite, React, Ant Design 6, React Router 8, session guard, login and password change. Design: ADR 0007. Agenda, expedientes, clientes and usuarios are placeholders in `src/App.tsx` (`Pendiente`).
+#16 (closed, PR #22): Vite, React, Ant Design 6, React Router 8, session guard, login and password change. Design: ADR 0007.
 
-- Frontend: 41 tests green, coverage about 97%, threshold 40% until every page exists, then raise it near the real value (ADR 0007). Tests render the real app with `renderApp(ruta)` and replace only `fetch` with `simularApi` (`src/test/`). Add a permission to `permisos.ts` and a row to the frontend table of `docs/testing.md` with each page. `camposConError` in `errores.ts` has no caller yet: the forms of #18 to #20 must use it with `form.setFields`.
+In review, not on `main` until its PR merges: #17 agenda on branch `feat/17-agenda`. Calendar and list over one `GET /api/audiencias`, upcoming alert, day detail, add form, held/cancel for pending hearings. Design: ADR 0008. Expedientes, clientes and usuarios are still placeholders in `src/App.tsx` (`Pendiente`); the agenda links to `/expedientes/:id`, which falls back to `/` until #18 adds that route.
+
+- Frontend: 70 tests green, coverage about 97%, threshold 40% until every page exists, then raise it near the real value (ADR 0007). Tests render the real app with `renderApp(ruta)` (inside `ConfigProvider esES`) and replace only `fetch` with `simularApi` (`src/test/`), which answers an empty agenda unless a test says otherwise. Add a permission to `permisos.ts` and a row to the frontend table of `docs/testing.md` with each page. Forms mark the API's rejected fields with `form.setFields(camposConError(error))` (`FormAudiencia.tsx` is the example).
+- Frontend test traps: `src/test/setup.ts` sets `configure({ defaultHidden: true, asyncUtilTimeout: 5000 })`. Without `defaultHidden`, each role query computed styles under jsdom against all of Ant Design's CSS and the agenda file took 9 minutes. Under test Ant Design gives every modal the same `aria-labelledby`, so find a modal by its title (`dialogo()` in `Agenda.test.tsx`). A button-style Radio hides its input: click the label. Tests that need a date fake only `Date` (`vi.useFakeTimers({ toFake: ['Date'] })`); the time zone is fixed to Argentina in `vite.config.ts`.
 - Backend suite: 170 tests green, coverage about 95% of statements (threshold 90%) (Supertest against `mongodb-memory-server`), `npm run typecheck` clean (inside `backend/`).
 - Alert design: `docs/adr/0003-alerta-de-vencimientos.md`. Days are counted in Argentina (`src/audiencias/calendario.ts`); audiencia `fecha` is `YYYY-MM-DD` only. `createApp({ clock })` injects time; tests use `createTestApp({}, { clock })`.
 - Seed design: `docs/adr/0004-seed-de-demo-y-titular-inicial.md`. Demo users share `demo avexis 2026` (README section 6). `npm run seed` empties the database in `MONGODB_URI`: never run it against data you want to keep.
@@ -46,8 +49,8 @@ In review, not on `main` until its PR merges: #16 on branch `feat/16-base-fronte
 - Skills: the user's skills in `C:\Users\PC\.agents\skills` are linked as junctions into `C:\Users\PC\.claude\skills` (Claude Code only reads `~/.claude/skills` and `<repo>/.claude/skills`). The user's `code-review` collides with a built-in; `/review` is the same skill.
 
 ### Next steps, in order
-1. Merge the #16 PR. The backend is final, apart from small fixes.
-2. #17 agenda, then #18 expedientes, #19 clientes, #20 usuarios. Scope and components are in each ticket; #6 is closed.
+1. Merge the #17 PR. The backend is final, apart from small fixes.
+2. #18 expedientes (it must add the `/expedientes/:id` route the agenda links to), then #19 clientes, #20 usuarios. Scope and components are in each ticket; #6 is closed.
 3. Update the README with the frontend commands. Close #4 and update map #1.
 4. #13 deploy only if time remains: it is optional in the PDF. The backend does not serve the frontend yet, and a proxy needs `trust proxy` for the login limiter.
 5. Before delivery: `npm run test:coverage`, re-run the seed, rotate the Atlas password and move off the `atlasAdmin` user.
@@ -70,9 +73,9 @@ The user has less than a month, and the repo link goes to the teacher at least a
 - The sandbox blocks local sockets, network and writes to `.git`: run tests, `npm install`, git and `gh` with the sandbox bypass.
 - Always run `npm`/`npx` inside `backend/` or `frontend/`, and vitest from that folder: from `frontend/src` every test fails in 1 ms because it misses the config. Never `npm install` from the repo root or `C:\Users\PC` (that `package.json` belongs to another project; don't touch it).
 - The PDF filename has decomposed accents; copy it to the scratchpad with an ASCII name to read it.
-- Engram needs `project=tp-final`, also on `mem_get_observation`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`, `decision/avexis-frontend-scope`, `decision/avexis-audiencia-populate`, `decision/avexis-frontend-auth-flow`, `decision/avexis-frontend-usuarios`, `decision/avexis-frontend-errors`.
+- Engram needs `project=tp-final`, also on `mem_get_observation`. Topics: `handoff/avexis-backend-mvp`, `decision/avexis-auth-design`, `handoff/avexis-error-core`, `decision/avexis-frontend-scope`, `decision/avexis-audiencia-populate`, `decision/avexis-frontend-auth-flow`, `decision/avexis-frontend-usuarios`, `decision/avexis-frontend-errors`, `decision/avexis-agenda`.
 - `vitest.config.ts` raises the test timeout to 30 s: every domain test logs in four users through bcrypt cost 12 while files run in parallel.
-- To try the app without touching Atlas: start `mongodb-memory-server` on a fixed port from `backend/`, set `MONGODB_URI` to it in the shell (dotenv does not override it), check the resolved URI is local before `npm run seed`, and set `COOKIE_SECURE=false`. `agent-browser` worked once, then hung on `open` and could not reach its daemon (os error 10060) after its processes were stopped; `timeout` does not kill it on Windows, so run it in a `Start-Job` with a limit.
+- To try the app without touching Atlas: start `mongodb-memory-server` on a fixed port from `backend/`, set `MONGODB_URI` to it in the shell (dotenv does not override it), check the resolved URI is local before `npm run seed`, and set `COOKIE_SECURE=false`. `agent-browser` worked on 2026-11-07 (it had hung on 2026-11-06; run `open` in the background with a limit). Ant Design selects and native time inputs need clicks by coordinates (`mouse move/down/up`) and `press` key by key.
 - A request in flight during a password change can get a stale `UNAUTHORIZED`, since the change bumps `versionSesion`, and that ends the browser session. Harmless while the password page makes no other calls: watch it if a page polls.
 - Heredocs through the Bash tool can collapse `\\` into `\`; write files with regexes or escaped quotes using the Write/Edit tools.
 - On Windows, killing a background `npm run dev` by its shell pid leaves the `tsx` child alive and holding the port; stop it through the listening process and its parent.
@@ -88,15 +91,15 @@ The user has less than a month, and the repo link goes to the teacher at least a
 ```text
 Continua AVEXIS (TP Final Programacion III, UTN). Responde en espanol, corto, una pregunta a la vez; codigo, commits y docs en ingles, README en espanol. Commits convencionales, sin atribucion de IA. Modo pedagogico: tengo que defender cada decision en el oral, asi que en cada pregunta de diseno explicame el concepto, las opciones, tu recomendacion y una linea "para defenderla". Tengo menos de un mes: simple y funcional, sin sobreingenieria. Avisame si algo puede romperse.
 
-Contexto: lee docs/agents/handoff-prompt.md (seccion 1), GLOSSARY.md y los ADR de docs/adr/ que toque el ticket. En Engram (project=tp-final) busca decision/avexis-frontend-scope, decision/avexis-audiencia-populate, decision/avexis-frontend-auth-flow, decision/avexis-frontend-usuarios y decision/avexis-frontend-errors. El PDF del enunciado en la raiz es la especificacion.
+Contexto: lee docs/agents/handoff-prompt.md (seccion 1), GLOSSARY.md y los ADR de docs/adr/ que toque el ticket. En Engram (project=tp-final) busca decision/avexis-frontend-scope, decision/avexis-audiencia-populate, decision/avexis-frontend-auth-flow, decision/avexis-frontend-usuarios, decision/avexis-frontend-errors y decision/avexis-agenda. El PDF del enunciado en la raiz es la especificacion.
 
-Estado: backend terminado; base del frontend (#16) en PR, rama feat/16-base-frontend; #6 cerrado con el alcance del frontend; tickets #17 a #20 creados. Faltan las paginas de agenda, expedientes, clientes y usuarios.
+Estado: backend terminado; base del frontend (#16) mergeada; agenda (#17) en PR, rama feat/17-agenda. Faltan las paginas de expedientes, clientes y usuarios (#18 a #20).
 
 Haz esto, en orden:
 1. Verifica: git status -sb, git log --oneline -5, y dentro de backend/ y de frontend/ npm run typecheck y npm test. gh auth status debe mostrar DarienPerezGit activo.
-2. Confirma que el PR del #16 este mergeado y actualiza main. Toma el #17 (gh issue view 17). Crea la rama feat/17-agenda desde main antes del primer commit. Nunca commitees directo a main: cada ticket lleva rama corta y PR a main.
+2. Confirma que el PR del #17 este mergeado y actualiza main. Toma el #18 (gh issue view 18). Crea la rama feat/18-expedientes desde main antes del primer commit. Nunca commitees directo a main: cada ticket lleva rama corta y PR a main.
 3. Antes de escribir tests, propone que probar y espera mi confirmacion. Usa los skills tdd y code-review.
-4. Al terminar: typecheck, suite completa, cobertura, code-review, PR, y actualiza Engram y este handoff. Despues sigue con el #18.
+4. Al terminar: typecheck, suite completa, cobertura, code-review, PR, y actualiza Engram y este handoff. Despues sigue con el #19.
 
 Reglas: npm/npx siempre dentro de backend/ o frontend/, nunca npm install desde la raiz ni desde C:/Users/PC, y no toques C:/Users/PC/package.json. npm run seed vacia la base: no lo corras contra datos que quieras conservar. Nunca escribas la password de Atlas ni imprimas la URI. sechu-szlit y la maqueta son solo referencia: no copies codigo ni los emails reales de la maqueta. En PowerShell cita "@me".
 ```

@@ -1,11 +1,11 @@
 import { Card, Flex, Tag, Typography } from 'antd';
-import { ESTADOS, TIPOS } from '../../agenda';
 import type { Audiencia } from '../../agenda';
 import { Caratula } from './Caratula';
+import { EtiquetaEstado, EtiquetaTipo } from './Etiquetas';
 import { CerrarAudiencia } from './CerrarAudiencia';
 
 /** One hearing with everything needed to attend it. */
-export function TarjetaAudiencia({ audiencia, onCambio }: { audiencia: Audiencia; onCambio: () => void }) {
+export function TarjetaAudiencia({ audiencia, onCambio }: { audiencia: Audiencia; onCambio: () => Promise<void> }) {
   const { expedienteId: expediente, abogadoId: abogado } = audiencia;
 
   return (
@@ -16,9 +16,9 @@ export function TarjetaAudiencia({ audiencia, onCambio }: { audiencia: Audiencia
         </Typography.Text>
         <Typography.Text type="secondary">{`Expte. ${expediente.numero} · ${audiencia.hora} · ${abogado.nombre}`}</Typography.Text>
         <Flex gap={4} wrap>
-          <Tag color={TIPOS[audiencia.tipo].color}>{TIPOS[audiencia.tipo].etiqueta}</Tag>
+          <EtiquetaTipo tipo={audiencia.tipo} />
           {audiencia.esVencimientoFatal && <Tag color="red">Fatal</Tag>}
-          <Tag color={ESTADOS[audiencia.estado].color}>{ESTADOS[audiencia.estado].etiqueta}</Tag>
+          <EtiquetaEstado estado={audiencia.estado} />
         </Flex>
         <CerrarAudiencia audiencia={audiencia} onCambio={onCambio} />
       </Flex>

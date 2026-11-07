@@ -36,7 +36,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -50,14 +50,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -130,7 +130,16 @@
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
@@ -161,25 +170,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1977x</span>
+<span class="cline-any cline-yes">2153x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">38x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">47x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">168x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,6 +205,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 &nbsp;
+// Month and day names in Spanish. Set here, not in main.tsx, so the tests that render the agenda get them too.
 dayjs.locale('es');
 &nbsp;
 export type TipoAudiencia = 'AUDIENCIA' | 'VENCIMIENTO' | 'PERICIA';
@@ -228,14 +245,21 @@ export function fechaLarga(dia: string) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 &nbsp;
-/** The plaintiff's side of a carátula ("Perez, Juan c/ Acme SA s/ despido" is "Perez, Juan"), short enough for a calendar cell. */
-export const caratulaCorta = (caratula: string) =&gt; caratula.split(/\s+c\/\s*/i)[0];
+/**
+ * The first party of a carátula, short enough for a calendar cell: "Perez, Juan c/ Acme SA s/ despido" and
+ * "Acosta, Sofia s/ sucesion" (a case with no defendant) are "Perez, Juan" and "Acosta, Sofia".
+ */
+export const caratulaCorta = (caratula: string) =&gt; caratula.split(/\s+[cs]\/\s*/i)[0];
 &nbsp;
 export const TIPOS: Record&lt;TipoAudiencia, { etiqueta: string; color: string }&gt; = {
   AUDIENCIA: { etiqueta: 'Audiencia', color: 'blue' },
   VENCIMIENTO: { etiqueta: 'Vencimiento', color: 'orange' },
   PERICIA: { etiqueta: 'Pericia', color: 'purple' },
 };
+&nbsp;
+/** A label map as `{ value, label }` options for a Select, Radio or legend. */
+export const opciones = &lt;T extends string&gt;(valores: Record&lt;T, { etiqueta: string }&gt;) =&gt;
+  (Object.keys(valores) as T[]).map((value) =&gt; ({ value, label: valores[value].etiqueta }));
 &nbsp;
 export const ESTADOS: Record&lt;EstadoAudiencia, { etiqueta: string; color: string }&gt; = {
   PENDIENTE: { etiqueta: 'Pendiente', color: 'gold' },
@@ -249,7 +273,7 @@ export const ESTADOS: Record&lt;EstadoAudiencia, { etiqueta: string; color: stri
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-07T18:39:42.419Z
+                at 2026-11-07T18:55:32.976Z
             </div>
         <script src="../prettify.js"></script>
         <script>

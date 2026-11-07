@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
+// Month and day names in Spanish. Set here, not in main.tsx, so the tests that render the agenda get them too.
 dayjs.locale('es');
 
 export type TipoAudiencia = 'AUDIENCIA' | 'VENCIMIENTO' | 'PERICIA';
@@ -51,6 +52,10 @@ export const TIPOS: Record<TipoAudiencia, { etiqueta: string; color: string }> =
   VENCIMIENTO: { etiqueta: 'Vencimiento', color: 'orange' },
   PERICIA: { etiqueta: 'Pericia', color: 'purple' },
 };
+
+/** A label map as `{ value, label }` options for a Select, Radio or legend. */
+export const opciones = <T extends string>(valores: Record<T, { etiqueta: string }>) =>
+  (Object.keys(valores) as T[]).map((value) => ({ value, label: valores[value].etiqueta }));
 
 export const ESTADOS: Record<EstadoAudiencia, { etiqueta: string; color: string }> = {
   PENDIENTE: { etiqueta: 'Pendiente', color: 'gold' },

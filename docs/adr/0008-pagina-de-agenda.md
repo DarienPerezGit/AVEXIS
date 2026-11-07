@@ -22,7 +22,9 @@ The agenda is the home page. The assignment asks for an "agenda of hearings and 
 
 5. **The case field offers up to 100 cases**, the API's page cap (ADR 0002). A lawyer only gets their own cases back, which matches what they may load hearings on.
 
-6. **The carátula links to its case only when the user can open it** (`puedeVerExpediente`, the same rule as the API). A lawyer attending a colleague's hearing sees what it is about but gets no link that would answer 403.
+6. **A cancelled hearing stays on the calendar, crossed out.** The record is kept, and crossing it out tells nobody to attend.
+
+7. **The carátula links to its case only when the user can open it** (`puedeVerExpediente`, the same rule as the API). A lawyer attending a colleague's hearing sees what it is about but gets no link that would answer 403.
 
 ## Consequences
 

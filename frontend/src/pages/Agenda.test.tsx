@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { errorDeApi, simularApi } from '../test/api';
 import { renderApp } from '../test/render';
-import { ABOGADO, ASISTENTE } from '../test/usuarios';
+import { ABOGADO, ASISTENTE, TITULAR } from '../test/usuarios';
 
 // A Wednesday, fixed so the calendar always opens on November 2026. Only `Date` is faked: timers stay real.
 const HOY = new Date('2026-11-04T12:00:00-03:00');
@@ -292,8 +292,11 @@ describe('link to the case', () => {
     expect(screen.queryByRole('link', { name: 'Ruiz, Pablo c/ Otro s/ cobro' })).not.toBeInTheDocument();
   });
 
-  it('links the assistant to every case', async () => {
-    await listaComo(ASISTENTE);
+  it.each([
+    ['assistant', ASISTENTE],
+    ['firm owner', TITULAR],
+  ])('links the %s to every case', async (_perfil, usuario) => {
+    await listaComo(usuario);
 
     expect(screen.getByRole('link', { name: 'Ruiz, Pablo c/ Otro s/ cobro' })).toHaveAttribute('href', '/expedientes/e9');
   });
@@ -407,6 +410,14 @@ describe('adding a hearing', () => {
     expect(posts(simulada)[0]?.body).toEqual({ expedienteId: 'e1', fecha: '2026-11-10', hora: '10:00', tipo: 'VENCIMIENTO', esVencimientoFatal: true });
     expect(await screen.findByText('10:00 Perez, Juan')).toBeInTheDocument();
     await waitFor(() => expect(hayDialogo('Nueva audiencia')).toBe(false));
+  });
+
+  it('offers the firm owner the lawyer field too', async () => {
+    agendaParaAgregar(TITULAR);
+
+    const formulario = await abrirFormularioDelDia('2026-11-10');
+
+    expect(formulario.getByRole('combobox', { name: 'Abogado' })).toBeInTheDocument();
   });
 
   it('lets the assistant pick the lawyer who attends', async () => {

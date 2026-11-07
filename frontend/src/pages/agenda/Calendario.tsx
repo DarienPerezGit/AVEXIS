@@ -4,10 +4,14 @@ import type { Dayjs } from 'dayjs';
 import { useState } from 'react';
 import { TIPOS, caratulaCorta, diaDe } from '../../agenda';
 import type { Audiencia, TipoAudiencia } from '../../agenda';
+import { EtiquetaTipo } from './Etiquetas';
 
 const VISIBLES_POR_DIA = 3;
 
 const etiqueta = { display: 'block', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as const;
+
+/** A cancelled hearing stays on its day, since the record is kept, but crossed out so nobody attends it. */
+const cancelada = { textDecoration: 'line-through', opacity: 0.6 } as const;
 
 interface Props {
   audiencias: Audiencia[];
@@ -24,7 +28,7 @@ export function Calendario({ audiencias, onElegirDia }: Props) {
     return (
       <>
         {delDia.slice(0, VISIBLES_POR_DIA).map((a) => (
-          <Tag key={a._id} color={TIPOS[a.tipo].color} style={etiqueta}>
+          <Tag key={a._id} color={TIPOS[a.tipo].color} style={a.estado === 'CANCELADA' ? { ...etiqueta, ...cancelada } : etiqueta}>
             {`${a.hora} ${caratulaCorta(a.expedienteId.caratula)}`}
           </Tag>
         ))}
@@ -67,10 +71,11 @@ export function Leyenda() {
   return (
     <Space wrap>
       {(Object.keys(TIPOS) as TipoAudiencia[]).map((tipo) => (
-        <Tag key={tipo} color={TIPOS[tipo].color}>
-          {TIPOS[tipo].etiqueta}
-        </Tag>
+        <EtiquetaTipo key={tipo} tipo={tipo} />
       ))}
+      <Typography.Text type="secondary" delete>
+        Cancelada
+      </Typography.Text>
     </Space>
   );
 }

@@ -6,7 +6,8 @@ import { mensajeDeError } from '../../errores';
 
 interface Props {
   audiencia: Audiencia;
-  onCambio: () => void;
+  /** Reloads the agenda. Awaited, so the buttons stay disabled until the new state is on screen. */
+  onCambio: () => Promise<void>;
 }
 
 /**
@@ -25,7 +26,7 @@ export function CerrarAudiencia({ audiencia, onCambio }: Props) {
     setEnviando(true);
     try {
       await api(`/audiencias/${audiencia._id}`, { method: 'PATCH', body: { estado } });
-      onCambio();
+      await onCambio();
     } catch (error) {
       message.error(mensajeDeError(error));
     } finally {

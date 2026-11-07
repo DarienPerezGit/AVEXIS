@@ -180,7 +180,8 @@
 <a name='L104'></a><a href='#L104'>104</a>
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -194,45 +195,46 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">98x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">38x</span>
-<span class="cline-any cline-yes">38x</span>
-<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">98x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-yes">41x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">37x</span>
-<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
+<span class="cline-any cline-yes">40x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">38x</span>
+<span class="cline-any cline-yes">41x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">35x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">32x</span>
+<span class="cline-any cline-yes">98x</span>
+<span class="cline-any cline-yes">35x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">58x</span>
+<span class="cline-any cline-yes">63x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">57x</span>
+<span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">57x</span>
+<span class="cline-any cline-yes">62x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -259,7 +261,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -306,11 +308,11 @@ export function Agenda() {
   const [error, setError] = useState&lt;string&gt;();
   const [diaAbierto, setDiaAbierto] = useState&lt;string&gt;();
   /** The day the new-hearing form opens on, while it is open. */
-  const [altaEl, setAltaEl] = useState&lt;string&gt;();
+  const [diaDelAlta, setDiaDelAlta] = useState&lt;string&gt;();
   const [vista, setVista] = useState&lt;'Calendario' | 'Lista'&gt;('Calendario');
 &nbsp;
+  // The error screen stays until a load succeeds, so a retry never shows an empty agenda while it waits.
   const cargar = useCallback(async () =&gt; {
-    setError(undefined);
     try {
       const [agenda, aviso] = await Promise.all([
         api&lt;{ audiencias: Audiencia[] }&gt;('/audiencias'),
@@ -318,6 +320,7 @@ export function Agenda() {
       ]);
       setAudiencias(agenda.audiencias);
       setProximas(aviso.audiencias);
+      setError(undefined);
     } catch (causa) {
       setError(mensajeDeError(causa));
     } finally {
@@ -345,7 +348,7 @@ export function Agenda() {
           Agenda
         &lt;/Typography.Title&gt;
         {/* Today on the browser's clock, never toISOString(): after 21:00 in Argentina that is already tomorrow in UTC. */}
-        &lt;Button type="primary" onClick={() =&gt; setAltaEl(dayjs().format('YYYY-MM-DD'))}&gt;
+        &lt;Button type="primary" onClick={() =&gt; setDiaDelAlta(dayjs().format('YYYY-MM-DD'))}&gt;
           Nueva audiencia
         &lt;/Button&gt;
       &lt;/Flex&gt;
@@ -365,7 +368,7 @@ export function Agenda() {
         title={diaAbierto &amp;&amp; fechaLarga(diaAbierto)}
 <span class="fstat-no" title="function not covered" >        onCancel={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etDiaAbierto(undefined)}</span>
         footer={
-          &lt;Button type="primary" onClick={() =&gt; setAltaEl(diaAbierto)}&gt;
+          &lt;Button type="primary" onClick={() =&gt; setDiaDelAlta(diaAbierto)}&gt;
             Agregar audiencia
           &lt;/Button&gt;
         }
@@ -379,12 +382,12 @@ export function Agenda() {
         &lt;/Flex&gt;
       &lt;/Modal&gt;
 &nbsp;
-      {altaEl &amp;&amp; (
+      {diaDelAlta &amp;&amp; (
         &lt;FormAudiencia
-          fecha={altaEl}
-<span class="fstat-no" title="function not covered" >          onCerrar={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etAltaEl(undefined)}</span>
+          fecha={diaDelAlta}
+<span class="fstat-no" title="function not covered" >          onCerrar={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etDiaDelAlta(undefined)}</span>
           onGuardada={() =&gt; {
-            setAltaEl(undefined);
+            setDiaDelAlta(undefined);
             void cargar();
           }}
         /&gt;
@@ -399,7 +402,7 @@ export function Agenda() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-07T18:39:42.498Z
+                at 2026-11-07T18:55:33.112Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

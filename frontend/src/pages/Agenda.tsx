@@ -18,11 +18,11 @@ export function Agenda() {
   const [error, setError] = useState<string>();
   const [diaAbierto, setDiaAbierto] = useState<string>();
   /** The day the new-hearing form opens on, while it is open. */
-  const [altaEl, setAltaEl] = useState<string>();
+  const [diaDelAlta, setDiaDelAlta] = useState<string>();
   const [vista, setVista] = useState<'Calendario' | 'Lista'>('Calendario');
 
+  // The error screen stays until a load succeeds, so a retry never shows an empty agenda while it waits.
   const cargar = useCallback(async () => {
-    setError(undefined);
     try {
       const [agenda, aviso] = await Promise.all([
         api<{ audiencias: Audiencia[] }>('/audiencias'),
@@ -30,6 +30,7 @@ export function Agenda() {
       ]);
       setAudiencias(agenda.audiencias);
       setProximas(aviso.audiencias);
+      setError(undefined);
     } catch (causa) {
       setError(mensajeDeError(causa));
     } finally {
@@ -57,7 +58,7 @@ export function Agenda() {
           Agenda
         </Typography.Title>
         {/* Today on the browser's clock, never toISOString(): after 21:00 in Argentina that is already tomorrow in UTC. */}
-        <Button type="primary" onClick={() => setAltaEl(dayjs().format('YYYY-MM-DD'))}>
+        <Button type="primary" onClick={() => setDiaDelAlta(dayjs().format('YYYY-MM-DD'))}>
           Nueva audiencia
         </Button>
       </Flex>
@@ -77,7 +78,7 @@ export function Agenda() {
         title={diaAbierto && fechaLarga(diaAbierto)}
         onCancel={() => setDiaAbierto(undefined)}
         footer={
-          <Button type="primary" onClick={() => setAltaEl(diaAbierto)}>
+          <Button type="primary" onClick={() => setDiaDelAlta(diaAbierto)}>
             Agregar audiencia
           </Button>
         }
@@ -91,12 +92,12 @@ export function Agenda() {
         </Flex>
       </Modal>
 
-      {altaEl && (
+      {diaDelAlta && (
         <FormAudiencia
-          fecha={altaEl}
-          onCerrar={() => setAltaEl(undefined)}
+          fecha={diaDelAlta}
+          onCerrar={() => setDiaDelAlta(undefined)}
           onGuardada={() => {
-            setAltaEl(undefined);
+            setDiaDelAlta(undefined);
             void cargar();
           }}
         />

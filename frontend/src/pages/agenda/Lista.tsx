@@ -1,10 +1,11 @@
-import { Button, Flex, Input, Select, Table, Tag } from 'antd';
+import { Button, Flex, Input, Select, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useState } from 'react';
-import { ESTADOS, TIPOS, diaDe, fechaCorta } from '../../agenda';
+import { ESTADOS, TIPOS, diaDe, fechaCorta, opciones } from '../../agenda';
 import type { Audiencia, EstadoAudiencia, TipoAudiencia } from '../../agenda';
 import { Caratula } from './Caratula';
 import { CerrarAudiencia } from './CerrarAudiencia';
+import { EtiquetaEstado, EtiquetaTipo } from './Etiquetas';
 
 interface Filtros {
   estado?: EstadoAudiencia;
@@ -15,23 +16,20 @@ interface Filtros {
 
 const SIN_FILTROS: Filtros = { texto: '' };
 
-const opciones = <T extends string>(valores: Record<T, { etiqueta: string }>) =>
-  (Object.keys(valores) as T[]).map((value) => ({ value, label: valores[value].etiqueta }));
-
 const columnasDeDatos: TableColumnsType<Audiencia> = [
   { title: 'Fecha', key: 'fecha', render: (_valor, a) => fechaCorta(diaDe(a)) },
   { title: 'Hora', dataIndex: 'hora' },
-  { title: 'Tipo', key: 'tipo', render: (_valor, a) => <Tag color={TIPOS[a.tipo].color}>{TIPOS[a.tipo].etiqueta}</Tag> },
+  { title: 'Tipo', key: 'tipo', render: (_valor, a) => <EtiquetaTipo tipo={a.tipo} /> },
   { title: 'Expediente', key: 'numero', render: (_valor, a) => a.expedienteId.numero },
   { title: 'Carátula', key: 'caratula', render: (_valor, a) => <Caratula expediente={a.expedienteId} /> },
   { title: 'Abogado', key: 'abogado', render: (_valor, a) => a.abogadoId.nombre },
-  { title: 'Estado', key: 'estado', render: (_valor, a) => <Tag color={ESTADOS[a.estado].color}>{ESTADOS[a.estado].etiqueta}</Tag> },
+  { title: 'Estado', key: 'estado', render: (_valor, a) => <EtiquetaEstado estado={a.estado} /> },
 ];
 
 /** Every hearing in a table. Filters run in the browser: the agenda is already loaded whole. */
-export function Lista({ audiencias, onCambio }: { audiencias: Audiencia[]; onCambio: () => void }) {
+export function Lista({ audiencias, onCambio }: { audiencias: Audiencia[]; onCambio: () => Promise<void> }) {
   const [filtros, setFiltros] = useState(SIN_FILTROS);
-  const cambiar = (cambio: Partial<Filtros>) => setFiltros({ ...filtros, ...cambio });
+  const cambiar = (cambio: Partial<Filtros>) => setFiltros((antes) => ({ ...antes, ...cambio }));
 
   // The lawyers who appear in this agenda, so the filter never offers someone with nothing to show.
   const abogados = [...new Map(audiencias.map((a) => [a.abogadoId._id, a.abogadoId.nombre])).entries()].map(([value, label]) => ({ value, label }));

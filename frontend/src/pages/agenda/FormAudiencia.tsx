@@ -1,7 +1,7 @@
 import { App as AntApp, Alert, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { TIPOS } from '../../agenda';
+import { TIPOS, opciones } from '../../agenda';
 import type { TipoAudiencia } from '../../agenda';
 import { camposConError, mensajeDeError } from '../../errores';
 import { puedeAsignarAbogado } from '../../permisos';
@@ -101,7 +101,7 @@ export function FormAudiencia({ fecha, onCerrar, onGuardada }: Props) {
           <Input type="time" />
         </Form.Item>
         <Form.Item label="Tipo" name="tipo">
-          <Radio.Group optionType="button" options={(Object.keys(TIPOS) as TipoAudiencia[]).map((value) => ({ value, label: TIPOS[value].etiqueta }))} />
+          <Radio.Group optionType="button" options={opciones(TIPOS)} />
         </Form.Item>
         {tipo === 'VENCIMIENTO' && (
           <Form.Item name="esVencimientoFatal" valuePropName="checked">
