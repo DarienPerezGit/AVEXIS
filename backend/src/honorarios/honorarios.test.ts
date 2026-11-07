@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearEstudio, crearExpediente } from '../test/factories.js';
 
@@ -48,14 +47,13 @@ describe('GET /api/expedientes/:id/honorario', () => {
 
   it('names who recorded each payment, keeping the derived amounts', async () => {
     const { abogado, usuarios, url } = await expedienteDeAna();
-    await Usuario.updateOne({ _id: usuarios.abogado._id }, { nombre: 'Ana Diaz' });
     await abogado.post(url).send({ montoPactado: 500000 });
     await abogado.post(`${url}/pagos`).send({ monto: 200000 });
 
     const res = await abogado.get(url);
 
     expect(res.body.honorario).toMatchObject({ estado: 'PARCIAL', montoPagado: 200000, saldo: 300000 });
-    expect(res.body.honorario.pagos[0].usuarioId).toEqual({ _id: usuarios.abogado.id, nombre: 'Ana Diaz' });
+    expect(res.body.honorario.pagos[0].usuarioId).toEqual({ _id: usuarios.abogado.id, nombre: usuarios.abogado.nombre });
   });
 
   it('responds 404 while the case has no fee', async () => {

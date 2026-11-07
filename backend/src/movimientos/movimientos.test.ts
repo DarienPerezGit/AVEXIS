@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearEstudio, crearExpediente } from '../test/factories.js';
 
@@ -58,14 +57,13 @@ describe('GET /api/expedientes/:id/movimientos', () => {
 
   it('names who loaded each entry', async () => {
     const { asistente, usuarios } = await crearEstudio();
-    await Usuario.updateOne({ _id: usuarios.asistente._id }, { nombre: 'Carla Ruiz' });
     const expediente = await crearExpediente(usuarios.abogado._id);
     const url = `/api/expedientes/${expediente.id}/movimientos`;
     await asistente.post(url).send({ tipo: 'CEDULA', descripcion: 'Se diligencia cedula' });
 
     const res = await asistente.get(url);
 
-    expect(res.body.movimientos[0].usuarioId).toEqual({ _id: usuarios.asistente.id, nombre: 'Carla Ruiz' });
+    expect(res.body.movimientos[0].usuarioId).toEqual({ _id: usuarios.asistente.id, nombre: usuarios.asistente.nombre });
   });
 
   it('has no way to edit or delete an entry', async () => {

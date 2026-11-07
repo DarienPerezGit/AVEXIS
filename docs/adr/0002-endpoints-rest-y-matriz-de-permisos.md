@@ -2,7 +2,7 @@
 
 - Status: accepted
 - Date: 2026-11-01
-- Tickets: #14 (PRD), #10
+- Tickets: #14 (PRD), #10, #15
 
 ## Context
 

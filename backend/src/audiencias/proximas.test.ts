@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearAudiencia, crearEstudio, crearExpediente, createTestApp } from '../test/factories.js';
 
@@ -90,7 +89,6 @@ describe('GET /api/audiencias/proximas', () => {
 
   it('brings the case and the attendee names, keeping the days left and the urgency', async () => {
     const { abogado, usuarios } = await estudioConReloj();
-    await Usuario.updateOne({ _id: usuarios.abogado._id }, { nombre: 'Ana Diaz' });
     const foreign = await crearExpediente(usuarios.otroAbogado._id, { numero: '77/2026', caratula: 'Soto c/ Vera' });
     await crearAudiencia(foreign._id, usuarios.abogado._id, '2026-12-11');
 
@@ -103,7 +101,7 @@ describe('GET /api/audiencias/proximas', () => {
       caratula: 'Soto c/ Vera',
       abogadoResponsableId: usuarios.otroAbogado.id,
     });
-    expect(res.body.audiencias[0].abogadoId).toEqual({ _id: usuarios.abogado.id, nombre: 'Ana Diaz' });
+    expect(res.body.audiencias[0].abogadoId).toEqual({ _id: usuarios.abogado.id, nombre: usuarios.abogado.nombre });
   });
 
   it('widens the window with dias up to 30 and rejects values out of range', async () => {

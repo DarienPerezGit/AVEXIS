@@ -23,7 +23,7 @@ The assignment asks for at least 40% of statements. The project's threshold is 9
 
 ## Route inventory
 
-Every route has a Supertest test for its happy case, and 26 of the 28 also for an error response. The two without one are logout, which is public and always answers 204, and the documentation pages. That is well above the 50% the assignment requires.
+Every route has a Supertest test for its happy case, and 27 of the 29 also for an error response. The two without one are logout, which is public and always answers 204, and the documentation pages. That is well above the 50% the assignment requires.
 
 Paths are relative to `backend/src/`. Cross-cutting tests in `app.routes.test.ts` also check 401 without a session, 403 `PASSWORD_CHANGE_REQUIRED`, and 400 `INVALID_ID` on the domain routes.
 

@@ -31,7 +31,7 @@ export const editarExpedienteSchema = crearExpedienteSchema
   .pick({ caratula: true, fuero: true, estado: true, observaciones: true, abogadoResponsableId: true })
   .partial();
 
-const NOMBRES = [conNombre('clienteId'), conNombre('abogadoResponsableId')];
+const POPULATE_NOMBRES = [conNombre('clienteId'), conNombre('abogadoResponsableId')];
 
 export function createExpedientesRouter(config: AuthConfig) {
   const router = Router();
@@ -61,7 +61,7 @@ export function createExpedientesRouter(config: AuthConfig) {
     };
 
     const [data, total] = await Promise.all([
-      Expediente.find(filter).sort({ fechaInicio: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).populate(NOMBRES),
+      Expediente.find(filter).sort({ fechaInicio: -1, _id: -1 }).skip((page - 1) * limit).limit(limit).populate(POPULATE_NOMBRES),
       Expediente.countDocuments(filter),
     ]);
     res.json({ data, page, limit, total });
@@ -70,7 +70,7 @@ export function createExpedientesRouter(config: AuthConfig) {
   router.get('/:id', async (req, res) => {
     // Populated after the access check, which compares the raw ids.
     const expediente = await findExpedienteAccesible(req.usuario!, req.params.id);
-    res.json({ expediente: await expediente.populate(NOMBRES) });
+    res.json({ expediente: await expediente.populate(POPULATE_NOMBRES) });
   });
 
   // No DELETE: a case is archived (estado ARCHIVADO) so its history is kept.

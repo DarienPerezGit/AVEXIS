@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { assertPuedeAsignarAbogados } from '../access/policies.js';
+import { listarAbogadosAsignables } from '../access/policies.js';
 import type { AuthConfig } from '../auth/config.js';
 import { authenticate, requireTitular } from '../auth/middleware.js';
 import { assertPasswordPolicy, hashPassword, replacePassword } from '../auth/password.js';
@@ -21,9 +21,7 @@ export function createUsuariosRouter(config: AuthConfig) {
 
   // Declared before requireTitular: the assistant also assigns lawyers, so this is the one route open to them.
   router.get('/abogados', async (req, res) => {
-    assertPuedeAsignarAbogados(req.usuario!);
-    const abogados = await Usuario.find({ rol: 'ABOGADO', activo: true }).select('nombre').sort({ nombre: 1 }).lean();
-    res.json({ abogados });
+    res.json({ abogados: await listarAbogadosAsignables(req.usuario!) });
   });
 
   router.use(requireTitular);

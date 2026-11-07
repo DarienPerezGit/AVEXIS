@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { Usuario } from '../models/index.js';
 import { useTestDatabase } from '../test/database.js';
 import { crearCliente, crearEstudio, crearExpediente } from '../test/factories.js';
 
@@ -117,7 +116,6 @@ describe('GET /api/expedientes', () => {
 describe('names on a case', () => {
   async function expedienteConNombres() {
     const estudio = await crearEstudio();
-    await Usuario.updateOne({ _id: estudio.usuarios.abogado._id }, { nombre: 'Ana Diaz' });
     const cliente = await crearCliente({ nombre: 'Ruben Soto' });
     const expediente = await crearExpediente(estudio.usuarios.abogado._id, { clienteId: cliente._id });
     return {
@@ -125,7 +123,7 @@ describe('names on a case', () => {
       expediente,
       nombres: {
         clienteId: { _id: cliente.id, nombre: 'Ruben Soto' },
-        abogadoResponsableId: { _id: estudio.usuarios.abogado.id, nombre: 'Ana Diaz' },
+        abogadoResponsableId: { _id: estudio.usuarios.abogado.id, nombre: estudio.usuarios.abogado.nombre },
       },
     };
   }
