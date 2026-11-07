@@ -21,5 +21,11 @@ const actuaSoloSobreLoPropio = (usuario: Usuario) => usuario.rol === 'ABOGADO' &
 export const puedeVerExpediente = (usuario: Usuario, expediente: { abogadoResponsableId: string }) =>
   !actuaSoloSobreLoPropio(usuario) || expediente.abogadoResponsableId === usuario._id;
 
+/** Choosing who carries a case is a professional decision, so the assistant does not open cases (ADR 0001). */
+export const puedeAbrirExpedientes = (usuario: Usuario) => usuario.rol === 'ABOGADO';
+
+/** Whether the case list holds other lawyers' cases, so it is worth showing who carries each. */
+export const veTodosLosExpedientes = (usuario: Usuario) => !actuaSoloSobreLoPropio(usuario);
+
 /** Whether a form offers to pick the lawyer. The API always assigns a lawyer's work to themselves. */
 export const puedeAsignarAbogado = (usuario: Usuario) => !actuaSoloSobreLoPropio(usuario);
