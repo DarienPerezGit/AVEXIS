@@ -28,7 +28,7 @@ export const puedeAbrirExpedientes = (usuario: Usuario) => usuario.rol === 'ABOG
 export const puedeModificarExpediente = (usuario: Usuario, expediente: { abogadoResponsableId: string }) =>
   puedeAbrirExpedientes(usuario) && puedeVerExpediente(usuario, expediente);
 
-/** Fees are economic data: only lawyers see them, and only on a case they can open (so the titular or its responsible). */
+/** Fees are economic data: only lawyers see them. Which cases a lawyer reaches is `puedeVerExpediente`'s rule. */
 export const veHonorarios = (usuario: Usuario) => usuario.rol === 'ABOGADO';
 
 /** Whether the case list holds other lawyers' cases, so it is worth showing who carries each. */

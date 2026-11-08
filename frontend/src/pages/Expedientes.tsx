@@ -3,7 +3,7 @@ import type { TableColumnsType } from 'antd';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { api } from '../api';
-import { opciones } from '../agenda';
+import { opciones } from '../opciones';
 import { mensajeDeError } from '../errores';
 import { ESTADOS_EXPEDIENTE, FUEROS } from '../expedientes';
 import type { EstadoExpediente, Expediente, Fuero } from '../expedientes';
@@ -42,7 +42,7 @@ const columnasDeDatos: TableColumnsType<Expediente> = [
   { title: 'Estado', key: 'estado', render: (_valor, e) => <Tag color={ESTADOS_EXPEDIENTE[e.estado].color}>{ESTADOS_EXPEDIENTE[e.estado].etiqueta}</Tag> },
 ];
 
-const columnaAbogado: TableColumnsType<Expediente>[number] = { title: 'Abogado', key: 'abogado', render: (_valor, e) => e.abogadoResponsableId.nombre };
+const columnaAbogado: TableColumnsType<Expediente>[number] = { title: 'Abogado responsable', key: 'abogado', render: (_valor, e) => e.abogadoResponsableId.nombre };
 
 /** The cases, a page at a time: the API paginates and filters, so the browser never loads them all. */
 export function Expedientes() {

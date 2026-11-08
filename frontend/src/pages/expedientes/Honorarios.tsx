@@ -7,6 +7,8 @@ import type { Honorario } from '../../expedientes';
 
 type Formulario = 'honorario' | 'pago';
 
+/** `ruta` is what each form adds to the case's fee route: the fee itself is posted to that route as is. */
+
 const FORMULARIOS: Record<Formulario, { titulo: string; campo: string; etiqueta: string; ruta: string; exito: string }> = {
   honorario: { titulo: 'Registrar honorario', campo: 'montoPactado', etiqueta: 'Monto pactado', ruta: '', exito: 'Honorario registrado.' },
   pago: { titulo: 'Registrar pago', campo: 'monto', etiqueta: 'Monto', ruta: '/pagos', exito: 'Pago registrado.' },

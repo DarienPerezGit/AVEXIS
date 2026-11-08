@@ -1,12 +1,13 @@
 import { App as AntApp, Alert, Form, Input, Modal, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { ApiError, api } from '../../api';
-import { opciones } from '../../agenda';
 import { camposConError, mensajeDeError } from '../../errores';
 import { FUEROS, instanteDe } from '../../expedientes';
 import type { Fuero } from '../../expedientes';
 import { puedeAsignarAbogado } from '../../permisos';
 import { useSesion } from '../../sesion';
+import { cargarAbogados, opciones } from '../../opciones';
+import type { Opcion } from '../../opciones';
 
 interface Valores {
   numero: string;
@@ -16,11 +17,6 @@ interface Valores {
   abogadoResponsableId?: string;
   fechaInicio?: string;
   observaciones?: string;
-}
-
-interface Opcion {
-  value: string;
-  label: string;
 }
 
 const requerido = (message: string) => [{ required: true, message }];
@@ -50,8 +46,8 @@ export function NuevoExpediente({ onCerrar, onGuardado }: Props) {
       .then((res) => setClientes(res.clientes.map((c) => ({ value: c._id, label: c.nombre }))))
       .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     if (eligeAbogado) {
-      api<{ abogados: { _id: string; nombre: string }[] }>('/usuarios/abogados')
-        .then((res) => setAbogados(res.abogados.map((a) => ({ value: a._id, label: a.nombre }))))
+      cargarAbogados()
+        .then(setAbogados)
         .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     }
   }, [eligeAbogado]);
@@ -60,7 +56,7 @@ export function NuevoExpediente({ onCerrar, onGuardado }: Props) {
     setEnviando(true);
     try {
       // A cleared optional field arrives as "", which the API would reject: it is sent as absent.
-      const body = { ...valores, fechaInicio: valores.fechaInicio ? instanteDe(valores.fechaInicio) : undefined,observaciones: valores.observaciones?.trim() || undefined };
+      const body = { ...valores, fechaInicio: valores.fechaInicio ? instanteDe(valores.fechaInicio) : undefined, observaciones: valores.observaciones?.trim() || undefined };
       await api('/expedientes', { method: 'POST', body });
       message.success('Expediente creado.');
       onGuardado();

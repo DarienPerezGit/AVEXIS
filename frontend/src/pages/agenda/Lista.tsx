@@ -1,7 +1,8 @@
 import { Button, Flex, Input, Select, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useState } from 'react';
-import { ESTADOS, TIPOS, diaDe, fechaCorta, opciones } from '../../agenda';
+import { ESTADOS, TIPOS, diaDe, fechaCorta } from '../../agenda';
+import { opciones } from '../../opciones';
 import type { Audiencia, EstadoAudiencia, TipoAudiencia } from '../../agenda';
 import { Caratula } from './Caratula';
 import { CerrarAudiencia } from './CerrarAudiencia';

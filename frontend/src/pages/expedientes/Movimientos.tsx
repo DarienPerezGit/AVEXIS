@@ -1,7 +1,7 @@
 import { App as AntApp, Alert, Button, Empty, Flex, Form, Input, Modal, Select, Spin, Timeline, Typography } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../../api';
-import { opciones } from '../../agenda';
+import { opciones } from '../../opciones';
 import { camposConError, mensajeDeError } from '../../errores';
 import { TIPOS_MOVIMIENTO, fechaDe } from '../../expedientes';
 import type { Movimiento } from '../../expedientes';

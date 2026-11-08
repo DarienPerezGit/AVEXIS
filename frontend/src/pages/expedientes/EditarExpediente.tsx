@@ -1,12 +1,13 @@
 import { App as AntApp, Alert, Form, Input, Modal, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { opciones } from '../../agenda';
 import { camposConError, mensajeDeError } from '../../errores';
 import { ESTADOS_EXPEDIENTE, FUEROS } from '../../expedientes';
 import type { Expediente } from '../../expedientes';
 import { puedeAsignarAbogado } from '../../permisos';
 import { useSesion } from '../../sesion';
+import { cargarAbogados, opciones } from '../../opciones';
+import type { Opcion } from '../../opciones';
 
 interface Props {
   expediente: Expediente;
@@ -19,17 +20,17 @@ export function EditarExpediente({ expediente, onCerrar, onGuardado }: Props) {
   const { usuario } = useSesion();
   const { message } = AntApp.useApp();
   const [form] = Form.useForm();
-  const [abogados, setAbogados] = useState<{ value: string; label: string }[]>([]);
+  const [abogados, setAbogados] = useState<Opcion[]>([]);
   const [errorDeCarga, setErrorDeCarga] = useState<string>();
   const [enviando, setEnviando] = useState(false);
 
-  // Only the firm owner reaches this form and reassigns: the API ignores a lawyer's reassignment.
+  // The owner and the responsible lawyer both edit; only the owner reassigns. The API ignores a lawyer's reassignment.
   const reasigna = usuario !== null && puedeAsignarAbogado(usuario);
 
   useEffect(() => {
     if (reasigna) {
-      api<{ abogados: { _id: string; nombre: string }[] }>('/usuarios/abogados')
-        .then((res) => setAbogados(res.abogados.map((a) => ({ value: a._id, label: a.nombre }))))
+      cargarAbogados()
+        .then(setAbogados)
         .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     }
   }, [reasigna]);

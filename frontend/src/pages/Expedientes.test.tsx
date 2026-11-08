@@ -69,7 +69,7 @@ describe('expedientes list', () => {
     renderApp('/expedientes');
 
     expect(await screen.findByText('123/2026')).toBeInTheDocument();
-    expect(screen.queryByRole('columnheader', { name: 'Abogado' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Abogado responsable' })).not.toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Cliente' })).toBeInTheDocument();
   });
 

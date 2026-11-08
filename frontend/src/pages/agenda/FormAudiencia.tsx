@@ -1,11 +1,13 @@
 import { App as AntApp, Alert, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { TIPOS, opciones } from '../../agenda';
+import { TIPOS } from '../../agenda';
 import type { TipoAudiencia } from '../../agenda';
 import { camposConError, mensajeDeError } from '../../errores';
 import { puedeAsignarAbogado } from '../../permisos';
 import { useSesion } from '../../sesion';
+import { cargarAbogados, opciones } from '../../opciones';
+import type { Opcion } from '../../opciones';
 
 interface Valores {
   expedienteId: string;
@@ -14,11 +16,6 @@ interface Valores {
   hora: string;
   tipo: TipoAudiencia;
   esVencimientoFatal?: boolean;
-}
-
-interface Opcion {
-  value: string;
-  label: string;
 }
 
 interface Expediente {
@@ -63,8 +60,8 @@ export function FormAudiencia({ fecha, expedienteId, onCerrar, onGuardada }: Pro
       .then((res) => setExpedientes(res.data.map((e) => ({ value: e._id, label: `${e.numero} · ${e.caratula}` }))))
       .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     if (eligeAbogado) {
-      api<{ abogados: { _id: string; nombre: string }[] }>('/usuarios/abogados')
-        .then((res) => setAbogados(res.abogados.map((a) => ({ value: a._id, label: a.nombre }))))
+      cargarAbogados()
+        .then(setAbogados)
         .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     }
   }, [eligeAbogado]);
