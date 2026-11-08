@@ -14,6 +14,9 @@ export interface Usuario {
  */
 export const puedeAdministrarUsuarios = (usuario: Usuario) => usuario.esTitular;
 
+/** Deleting is only for a client loaded by mistake, and the API leaves it to the firm owner. */
+export const puedeEliminarClientes = (usuario: Usuario) => usuario.esTitular;
+
 /** Same rule as the API (ADR 0002): a lawyer opens their own cases; the titular and the assistant, any. */
 const actuaSoloSobreLoPropio = (usuario: Usuario) => usuario.rol === 'ABOGADO' && !usuario.esTitular;
 
