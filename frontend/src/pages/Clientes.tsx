@@ -27,6 +27,7 @@ export function Clientes() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string>();
   const [busqueda, setBusqueda] = useState('');
+  const [pagina, setPagina] = useState(1);
   const [recargas, setRecargas] = useState(0);
   /** The open form: `true` registers a new client, a client edits that one. */
   const [formulario, setFormulario] = useState<Cliente | true>();
@@ -50,16 +51,16 @@ export function Clientes() {
   }, [busqueda, recargas]);
 
   const recargar = () => setRecargas((n) => n + 1);
-  const elimina = usuario !== null && puedeEliminarClientes(usuario);
+  const puedeEliminar = usuario !== null && puedeEliminarClientes(usuario);
 
   async function eliminar(cliente: Cliente) {
     try {
       await api(`/clientes/${cliente._id}`, { method: 'DELETE' });
       message.success('Cliente eliminado.');
       recargar();
-    } catch (error) {
+    } catch (causa) {
       // 409 CLIENTE_HAS_EXPEDIENTES: once a client has cases, they are part of the firm's history.
-      message.error(mensajeDeError(error));
+      message.error(mensajeDeError(causa));
     }
   }
 
@@ -73,7 +74,7 @@ export function Clientes() {
           <Button size="small" onClick={() => setFormulario(c)}>
             Editar
           </Button>
-          {elimina && (
+          {puedeEliminar && (
             <Popconfirm title="¿Eliminar este cliente?" description="Solo se puede si no tiene expedientes." okText="Sí, eliminar" cancelText="Cancelar" onConfirm={() => eliminar(c)}>
               <Button size="small" danger>
                 Eliminar
@@ -106,9 +107,12 @@ export function Clientes() {
         />
       )}
       {/* While typing: the API matches part of the name, DNI or CUIT. */}
-      <Input.Search placeholder="Buscar por nombre, DNI o CUIT" allowClear value={busqueda} onChange={(e) => setBusqueda(e.target.value)} style={{ width: 280 }} />
+      <Input.Search placeholder="Buscar por nombre, DNI o CUIT" allowClear value={busqueda} onChange={(e) => {
+          setBusqueda(e.target.value);
+          setPagina(1);
+        }} style={{ width: 280 }} />
       {error && <Alert type="error" title={error} />}
-      <Table rowKey="_id" columns={columnas} dataSource={clientes} loading={cargando} locale={{ emptyText: 'No hay clientes que coincidan.' }} pagination={{ pageSize: POR_PAGINA, showSizeChanger: false }} scroll={{ x: true }} />
+      <Table rowKey="_id" columns={columnas} dataSource={clientes} loading={cargando} locale={{ emptyText: 'No hay clientes que coincidan.' }} pagination={{ current: pagina, pageSize: POR_PAGINA, showSizeChanger: false, onChange: setPagina }} scroll={{ x: true }} />
     </Flex>
   );
 }

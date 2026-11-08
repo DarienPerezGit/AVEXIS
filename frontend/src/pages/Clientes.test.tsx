@@ -66,6 +66,22 @@ describe('clientes page', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('goes back to the first page when the search changes', async () => {
+    const veinticinco = Array.from({ length: 25 }, (_, i) => {
+      const n = String(i + 1).padStart(2, '0');
+      return cliente({ _id: `c${n}`, nombre: `Cliente ${n}`, dni: `200000${n}` });
+    });
+    listaCon(veinticinco, TITULAR, { 'GET /api/clientes?q=c': [200, { clientes: veinticinco }] });
+    renderApp('/clientes');
+    expect(await screen.findByText('Cliente 01')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('2', { selector: '.ant-pagination-item a' }));
+    expect(await screen.findByText('Cliente 25')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByPlaceholderText('Buscar por nombre, DNI o CUIT'), 'c');
+
+    expect(await screen.findByText('Cliente 01')).toBeInTheDocument();
+  });
+
   it('shows 20 clients per page and pages in the browser, with no new request', async () => {
     const veinticinco = Array.from({ length: 25 }, (_, i) => {
       const n = String(i + 1).padStart(2, '0');
@@ -187,5 +203,19 @@ describe('clientes page', () => {
 
     expect(await screen.findByText('No se puede eliminar un cliente que tiene expedientes.')).toBeInTheDocument();
     expect(screen.getByText('Perez, Juan')).toBeInTheDocument();
+  });
+
+  it('clears the address when it is erased on edit', async () => {
+    const api = listaCon([cliente({ direccion: 'Av. Siempreviva 742' })], TITULAR, { 'PATCH /api/clientes/c1': [200, { cliente: cliente() }] });
+    renderApp('/clientes');
+    expect(await screen.findByText('Perez, Juan')).toBeInTheDocument();
+
+    await userEvent.click(fila('Perez, Juan').getByRole('button', { name: 'Editar' }));
+    const modal = await dialogo('Editar cliente');
+    await userEvent.clear(modal.getByLabelText('Dirección'));
+    await userEvent.click(modal.getByRole('button', { name: 'Guardar' }));
+
+    await waitFor(() => expect(api.rutasLlamadas()).toContain('PATCH /api/clientes/c1'));
+    expect(api.llamadas.find((llamada) => llamada.ruta === 'PATCH /api/clientes/c1')?.body).toMatchObject({ direccion: '' });
   });
 });

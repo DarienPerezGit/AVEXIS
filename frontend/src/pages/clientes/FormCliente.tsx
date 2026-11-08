@@ -36,13 +36,14 @@ export function FormCliente({ cliente, onCerrar, onGuardado }: Props) {
 
   async function guardar(valores: Valores) {
     setEnviando(true);
-    // A cleared optional field arrives as "", which the API would reject: it is sent as absent.
-    const contacto = { nombre: valores.nombre, email: valores.email, telefono: valores.telefono, direccion: valores.direccion?.trim() || undefined };
+    // On edit an erased address travels as "" so the API clears it; a missing key would keep the old one.
+    const contacto = { nombre: valores.nombre, email: valores.email, telefono: valores.telefono, direccion: valores.direccion?.trim() };
     try {
       if (editando) {
         await api(`/clientes/${cliente._id}`, { method: 'PATCH', body: contacto });
       } else {
-        await api('/clientes', { method: 'POST', body: { ...contacto, tipo: valores.tipo, dni: valores.dni, cuit: valores.cuit } });
+        const body = { ...contacto, direccion: contacto.direccion || undefined, tipo: valores.tipo, dni: valores.dni, cuit: valores.cuit };
+        await api('/clientes', { method: 'POST', body });
       }
       message.success(editando ? 'Cliente actualizado.' : 'Cliente registrado.');
       onGuardado();
