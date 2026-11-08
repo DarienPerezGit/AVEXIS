@@ -1,11 +1,13 @@
 import { App as AntApp, Alert, Checkbox, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import { TIPOS, opciones } from '../../agenda';
+import { TIPOS } from '../../agenda';
 import type { TipoAudiencia } from '../../agenda';
 import { camposConError, mensajeDeError } from '../../errores';
 import { puedeAsignarAbogado } from '../../permisos';
 import { useSesion } from '../../sesion';
+import { cargarAbogados, opciones } from '../../opciones';
+import type { Opcion } from '../../opciones';
 
 interface Valores {
   expedienteId: string;
@@ -14,11 +16,6 @@ interface Valores {
   hora: string;
   tipo: TipoAudiencia;
   esVencimientoFatal?: boolean;
-}
-
-interface Opcion {
-  value: string;
-  label: string;
 }
 
 interface Expediente {
@@ -35,6 +32,8 @@ const requerido = (message: string) => [{ required: true, message }];
 interface Props {
   /** The day the form opens on, `YYYY-MM-DD`. */
   fecha: string;
+  /** The case the form opens on, when it is opened from that case. */
+  expedienteId?: string;
   onCerrar: () => void;
   onGuardada: () => void;
 }
@@ -43,7 +42,7 @@ interface Props {
  * Loads a hearing. Date and time are native inputs: they already speak `YYYY-MM-DD` and `HH:mm`, the API's format,
  * so no time zone is ever involved.
  */
-export function FormAudiencia({ fecha, onCerrar, onGuardada }: Props) {
+export function FormAudiencia({ fecha, expedienteId, onCerrar, onGuardada }: Props) {
   const { usuario } = useSesion();
   const { message } = AntApp.useApp();
   const [form] = Form.useForm();
@@ -61,8 +60,8 @@ export function FormAudiencia({ fecha, onCerrar, onGuardada }: Props) {
       .then((res) => setExpedientes(res.data.map((e) => ({ value: e._id, label: `${e.numero} · ${e.caratula}` }))))
       .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     if (eligeAbogado) {
-      api<{ abogados: { _id: string; nombre: string }[] }>('/usuarios/abogados')
-        .then((res) => setAbogados(res.abogados.map((a) => ({ value: a._id, label: a.nombre }))))
+      cargarAbogados()
+        .then(setAbogados)
         .catch((error: unknown) => setErrorDeCarga(mensajeDeError(error)));
     }
   }, [eligeAbogado]);
@@ -85,7 +84,7 @@ export function FormAudiencia({ fecha, onCerrar, onGuardada }: Props) {
   return (
     <Modal open title="Nueva audiencia" okText="Guardar" cancelText="Cancelar" onOk={form.submit} confirmLoading={enviando} onCancel={onCerrar}>
       {errorDeCarga && <Alert type="error" title={errorDeCarga} style={{ marginBottom: 16 }} />}
-      <Form form={form} layout="vertical" requiredMark={false} initialValues={{ fecha, tipo: 'AUDIENCIA' }} onFinish={guardar}>
+      <Form form={form} layout="vertical" requiredMark={false} initialValues={{ fecha, expedienteId, tipo: 'AUDIENCIA' }} onFinish={guardar}>
         <Form.Item label="Expediente" name="expedienteId" rules={requerido('Elegí el expediente.')}>
           <Select showSearch={{ optionFilterProp: 'label' }} options={expedientes} placeholder="Número o carátula" />
         </Form.Item>

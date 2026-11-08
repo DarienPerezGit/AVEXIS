@@ -53,10 +53,6 @@ export const TIPOS: Record<TipoAudiencia, { etiqueta: string; color: string }> =
   PERICIA: { etiqueta: 'Pericia', color: 'purple' },
 };
 
-/** A label map as `{ value, label }` options for a Select, Radio or legend. */
-export const opciones = <T extends string>(valores: Record<T, { etiqueta: string }>) =>
-  (Object.keys(valores) as T[]).map((value) => ({ value, label: valores[value].etiqueta }));
-
 export const ESTADOS: Record<EstadoAudiencia, { etiqueta: string; color: string }> = {
   PENDIENTE: { etiqueta: 'Pendiente', color: 'gold' },
   REALIZADA: { etiqueta: 'Realizada', color: 'green' },
