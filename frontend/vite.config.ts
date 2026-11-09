@@ -16,16 +16,17 @@ export default defineConfig(({ mode }) => {
       // The firm's zone on every machine, so a day read through `new Date()` shows up wrong in the tests too.
       env: { TZ: 'America/Argentina/Buenos_Aires' },
       setupFiles: './src/test/setup.ts',
-      // Ant Design components are slow to render under jsdom while files run in parallel.
-      testTimeout: 30_000,
+      // Ant Design pages are slow under jsdom: with coverage and every page file in parallel, role queries can pass 30 s.
+      testTimeout: 60_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
         exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
         reporter: ['text', 'html', 'lcov'],
         reportsDirectory: './coverage',
-        // The assignment's floor. It rises once every page exists (ADR 0007).
-        thresholds: { statements: 40 },
+        // The assignment asks for 40% of statements. With every page in place, the floor sits near the real value
+        // (about 94%), as in the backend, so it fails as soon as code lands without tests (ADR 0007).
+        thresholds: { statements: 90, branches: 85, functions: 85, lines: 90 },
       },
     },
   };

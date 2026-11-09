@@ -64,7 +64,7 @@ describe('usuarios page', () => {
     await userEvent.click(modal.getByRole('button', { name: 'Guardar' }));
 
     expect(await screen.findByText('Luis Gomez', { selector: 'td' })).toBeInTheDocument();
-    expect(api.llamadas.find((llamada) => llamada.ruta === 'POST /api/usuarios')?.body).toEqual({
+    expect(llamadaA(api, 'POST /api/usuarios')?.body).toEqual({
       nombre: 'Luis Gomez',
       email: 'luis@avexis.demo',
       rol: 'ABOGADO',

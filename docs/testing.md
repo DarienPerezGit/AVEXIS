@@ -63,7 +63,7 @@ Besides routes: `seed/seed-demo.test.ts` and `usuarios/titular-inicial.test.ts` 
 
 ## Frontend
 
-Inside `frontend/`: `npm test` runs every test once, and `npm run test:coverage` also writes the report to `frontend/coverage/`. It fails below 40% of statements, the assignment's floor (ADR 0007).
+Inside `frontend/`: `npm test` runs every test once, and `npm run test:coverage` also writes the report to `frontend/coverage/`. The assignment asks for at least 40% of statements. With every page in place, the threshold is 90%, close to the real value (about 94%), as in the backend (ADR 0007).
 
 Tests render the real app with Testing Library and replace only `fetch` (`simularApi` in `src/test/api.ts`), so they check what a user sees against answers of the real shape.
 

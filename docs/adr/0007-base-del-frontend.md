@@ -27,7 +27,7 @@ The assignment asks for React with TypeScript, a UI library (AntD, Chakra or Mat
 
 7. **Tests render the real app and replace only `fetch`**, the boundary with the API, the same idea as testing the backend through HTTP.
 
-8. **The coverage threshold is the assignment's 40% of statements for now, and the report is versioned in `frontend/coverage/`.** The pages of #17 to #20 are still placeholders. Once they exist, the threshold rises near the real value, as in ADR 0006.
+8. **The coverage threshold is the assignment's 40% of statements for now, and the report is versioned in `frontend/coverage/`.** The pages of #17 to #20 are still placeholders. Once they exist, the threshold rises near the real value, as in ADR 0006. Done in #20: 90% of statements and lines, 85% of branches and functions, with the real value about 94%.
 
 ## Consequences
 

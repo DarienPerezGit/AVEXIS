@@ -2,17 +2,11 @@ import { App as AntApp, Form, Input, Modal } from 'antd';
 import { useState } from 'react';
 import { ApiError, api } from '../../api';
 import { camposConError, mensajeDeError } from '../../errores';
-import type { Rol } from '../../usuarios';
-import { LONGITUD_CONTRASENA } from '../../usuarios';
+import type { Usuario } from '../../permisos';
+import { CampoContrasenaTemporal } from './CampoContrasenaTemporal';
 import { CamposDeAcceso } from './CamposDeAcceso';
 
-interface Valores {
-  nombre: string;
-  email: string;
-  rol: Rol;
-  esTitular: boolean;
-  password: string;
-}
+type Valores = Pick<Usuario, 'nombre' | 'email' | 'rol' | 'esTitular'> & { password: string };
 
 const requerido = (message: string) => [{ required: true, message }];
 
@@ -60,9 +54,7 @@ export function NuevoUsuario({ onCerrar, onGuardado }: Props) {
           <Input />
         </Form.Item>
         <CamposDeAcceso form={form} />
-        <Form.Item label="Contraseña temporal" name="password" rules={[...requerido('Ingresá una contraseña temporal.'), LONGITUD_CONTRASENA]}>
-          <Input.Password autoComplete="new-password" />
-        </Form.Item>
+        <CampoContrasenaTemporal />
       </Form>
     </Modal>
   );

@@ -19,10 +19,10 @@ const columnasDeDatos: TableColumnsType<Usuario> = [
   { title: 'Cambio de contraseña', key: 'password', render: (_valor, u) => u.debeCambiarPassword && <Tag color="orange">Pendiente</Tag> },
 ];
 
-/** The firm's users, managed by the titular. There is no public sign-up: every account starts here. */
 /** The modal open over the table, if any, with the user it acts on. */
 type Abierto = { accion: 'crear' } | { accion: 'editar' | 'resetear'; usuario: Usuario };
 
+/** The firm's users, managed by the titular. There is no public sign-up: every account starts here. */
 export function Usuarios() {
   const { usuario: yo } = useSesion();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
