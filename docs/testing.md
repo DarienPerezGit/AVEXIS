@@ -63,7 +63,7 @@ Besides routes: `seed/seed-demo.test.ts` and `usuarios/titular-inicial.test.ts` 
 
 ## Frontend
 
-Inside `frontend/`: `npm test` runs every test once, and `npm run test:coverage` also writes the report to `frontend/coverage/`. It fails below 40% of statements, the assignment's floor (ADR 0007).
+Inside `frontend/`: `npm test` runs every test once, and `npm run test:coverage` also writes the report to `frontend/coverage/`. The assignment asks for at least 40% of statements. With every page in place, the threshold is 90%, close to the real value (about 94%), as in the backend (ADR 0007).
 
 Tests render the real app with Testing Library and replace only `fetch` (`simularApi` in `src/test/api.ts`), so they check what a user sees against answers of the real shape.
 
@@ -80,6 +80,7 @@ Tests render the real app with Testing Library and replace only `fetch` (`simula
 | `pages/Expedientes.tsx`, `pages/expedientes/NuevoExpediente.tsx` | `pages/Expedientes.test.tsx` | Columns, lawyer column hidden from a plain lawyer; search on Enter, estado and fuero filters and pages asked to the API; "Nuevo expediente" only for lawyers; a lawyer's case is theirs, the owner picks the lawyer; the start day travels as Argentine midnight; a duplicate number marked on its field |
 | `pages/ExpedienteDetalle.tsx`, `pages/expedientes/*` | `pages/ExpedienteDetalle.test.tsx` | Opens from a row; data with the start instant on the local day; edit and archive only for the owner and the responsible lawyer; movimientos newest first with nothing to edit, added by anyone; only this case's hearings, adding one with the case picked; fee, paid, balance and payments, a 404 offered as "Registrar honorario", payments; no fees tab for the assistant; unknown or another lawyer's case |
 | `pages/Clientes.tsx`, `pages/clientes/FormCliente.tsx` | `pages/Clientes.test.tsx` | Columns with DNI or CUIT by tipo; search as you type asked to the API, back to the first page; 20 per page in the browser with no new request; registering asks DNI or CUIT by tipo and reloads; a duplicate DNI marked on its field; editing locks tipo and DNI and sends only name and contact, an erased address cleared; everyone registers and edits, only the owner deletes after confirming; a client with cases explained |
+| `pages/Usuarios.tsx`, `pages/usuarios/*` | `pages/Usuarios.test.tsx` | Columns with rol, owner, state and pending password change; creating with a temporary password reloads; a duplicate email marked on its field; one's own row offers no edit or reset; choosing assistant turns the owner status off and locks it, rol and owner sent together; deactivating asks first and reminds a lawyer's open cases, cancelling sends nothing; resetting sends the new temporary password and reloads |
 
 Agenda tests fix the date (`vi.useFakeTimers({ toFake: ['Date'] })`) and run in `America/Argentina/Buenos_Aires` (`test.env.TZ` in `vite.config.ts`), so a day read through `new Date()` fails on any machine. Under test, Ant Design gives every modal the same `aria-labelledby` id, so the agenda tests find a modal by its title (`dialogo` in the test file).
 
