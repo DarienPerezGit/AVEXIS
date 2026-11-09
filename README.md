@@ -4,7 +4,7 @@ Trabajo Práctico Final de Programación III (UTN, 2026). Cátedra: Prof. Ing. G
 
 AVEXIS organiza el trabajo diario de un estudio jurídico: clientes, expedientes, movimientos procesales, audiencias, vencimientos y honorarios. Cada instalación sirve a un solo estudio.
 
-**Estado:** el backend está terminado. El frontend ya permite entrar, cambiar la contraseña y navegar según el perfil; las páginas de agenda, expedientes, clientes y usuarios se están construyendo.
+**Estado:** el backend y el frontend están terminados. El frontend tiene siete páginas: entrar, cambiar la contraseña, agenda, listado y detalle de expedientes, clientes y usuarios (esta última, solo para el titular).
 
 ## Cómo funciona
 
@@ -180,7 +180,7 @@ Dentro de `frontend/`:
 | `npm run preview` | Sirve localmente la versión generada por `build`. |
 | `npm test` | Corre todos los tests una vez. |
 | `npm run test:watch` | Corre los tests cada vez que cambia un archivo. |
-| `npm run test:coverage` | Corre los tests y genera el reporte de cobertura. Falla por debajo del 40%. |
+| `npm run test:coverage` | Corre los tests y genera el reporte de cobertura. Falla si baja del umbral. |
 | `npm run typecheck` | Verifica los tipos de TypeScript. |
 
 ## Tests
@@ -190,9 +190,9 @@ npm test
 npm run test:coverage
 ```
 
-Corren igual dentro de `backend/` y de `frontend/`. Los del backend no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más.
+Corren igual dentro de `backend/` y de `frontend/`. Los del backend no usan Atlas ni necesitan `.env`: levantan una base MongoDB en memoria. La primera vez descargan el binario de MongoDB, así que esa corrida necesita internet y tarda más. La cobertura del frontend tarda unos dos minutos: corré la cobertura con el `npm run dev` del frontend cerrado, porque compiten por la CPU y algunos tests pueden pasarse del tiempo.
 
-El enunciado pide 40% de cobertura de statements. El backend exige 90% para detectar código nuevo sin tests, y el frontend, 40% hasta que estén todas las páginas. Los reportes están versionados en [`backend/coverage/`](backend/coverage/index.html) y [`frontend/coverage/`](frontend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
+El enunciado pide 40% de cobertura de statements. El backend y el frontend exigen 90%, cerca del valor real, para detectar código nuevo sin tests. Los reportes están versionados en [`backend/coverage/`](backend/coverage/index.html) y [`frontend/coverage/`](frontend/coverage/index.html), y [`docs/testing.md`](docs/testing.md) detalla qué test cubre cada ruta.
 
 ## Instalación real
 
