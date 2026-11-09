@@ -36,7 +36,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/21</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -50,14 +50,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -142,9 +142,7 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -156,24 +154,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">181x</span>
-<span class="cline-any cline-yes">181x</span>
+<span class="cline-any cline-yes">197x</span>
+<span class="cline-any cline-yes">197x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">181x</span>
-<span class="cline-any cline-yes">85x</span>
+<span class="cline-any cline-yes">197x</span>
+<span class="cline-any cline-yes">93x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">96x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">95x</span>
+<span class="cline-any cline-yes">103x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">91x</span>
-<span class="cline-any cline-yes">80x</span>
+<span class="cline-any cline-yes">99x</span>
+<span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -188,16 +187,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">90x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">98x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -214,7 +210,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Button, Result, Spin, Typography } from 'antd';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Button, Result, Spin } from 'antd';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import { AppLayout } from './AppLayout';
 import { Agenda } from './pages/Agenda';
@@ -223,6 +219,7 @@ import { Clientes } from './pages/Clientes';
 import { ExpedienteDetalle } from './pages/ExpedienteDetalle';
 import { Expedientes } from './pages/Expedientes';
 import { Login } from './pages/Login';
+import { Usuarios } from './pages/Usuarios';
 import { puedeAdministrarUsuarios } from './permisos';
 import { useSesion } from './sesion';
 &nbsp;
@@ -263,9 +260,6 @@ function SoloTitular() {
   return usuario &amp;&amp; puedeAdministrarUsuarios(usuario) ? &lt;Outlet /&gt; : &lt;Result status="403" title="No tenés permiso para ver esta página." /&gt;;
 }
 &nbsp;
-/** Filled in by the tickets of each page (#17 to #20). */
-const Pendiente = ({ titulo }: { titulo: string }) =&gt; &lt;Typography.Title level={2}&gt;{titulo}&lt;/Typography.Title&gt;;
-&nbsp;
 export function App() {
   return (
     &lt;Routes&gt;
@@ -276,7 +270,7 @@ export function App() {
         &lt;Route path="expedientes/:id" element={&lt;ExpedienteDetalle /&gt;} /&gt;
         &lt;Route path="clientes" element={&lt;Clientes /&gt;} /&gt;
         &lt;Route element={&lt;SoloTitular /&gt;}&gt;
-          &lt;Route path="usuarios" element={&lt;Pendiente titulo="Usuarios" /&gt;} /&gt;
+          &lt;Route path="usuarios" element={&lt;Usuarios /&gt;} /&gt;
         &lt;/Route&gt;
         &lt;Route path={RUTA_CAMBIO} element={&lt;CambiarPassword /&gt;} /&gt;
         &lt;Route path="*" element={&lt;Navigate to="/" replace /&gt;} /&gt;
@@ -291,7 +285,7 @@ export function App() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-08T23:43:13.471Z
+                at 2026-11-09T23:16:39.358Z
             </div>
         <script src="../prettify.js"></script>
         <script>
