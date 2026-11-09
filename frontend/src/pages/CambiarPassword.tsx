@@ -4,13 +4,12 @@ import { useNavigate } from 'react-router';
 import { api } from '../api';
 import { mensajeDeError } from '../errores';
 import { useSesion } from '../sesion';
+import { LONGITUD_CONTRASENA } from '../usuarios';
 
 interface Cambio {
   actual: string;
   nueva: string;
 }
-
-const LONGITUD_PERMITIDA = { min: 15, max: 64, message: 'Debe tener entre 15 y 64 caracteres.' };
 
 export function CambiarPassword() {
   const { usuario, recargar, salir } = useSesion();
@@ -46,7 +45,7 @@ export function CambiarPassword() {
           <Form.Item label="Contraseña actual" name="actual" rules={[{ required: true, message: 'Ingresá tu contraseña actual.' }]}>
             <Input.Password autoComplete="current-password" />
           </Form.Item>
-          <Form.Item label="Contraseña nueva" name="nueva" rules={[{ required: true, message: 'Ingresá la contraseña nueva.' }, LONGITUD_PERMITIDA]}>
+          <Form.Item label="Contraseña nueva" name="nueva" rules={[{ required: true, message: 'Ingresá la contraseña nueva.' }, LONGITUD_CONTRASENA]}>
             <Input.Password autoComplete="new-password" />
           </Form.Item>
           <Form.Item

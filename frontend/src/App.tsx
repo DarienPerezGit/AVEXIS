@@ -1,4 +1,4 @@
-import { Button, Result, Spin, Typography } from 'antd';
+import { Button, Result, Spin } from 'antd';
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import { AppLayout } from './AppLayout';
 import { Agenda } from './pages/Agenda';
@@ -7,6 +7,7 @@ import { Clientes } from './pages/Clientes';
 import { ExpedienteDetalle } from './pages/ExpedienteDetalle';
 import { Expedientes } from './pages/Expedientes';
 import { Login } from './pages/Login';
+import { Usuarios } from './pages/Usuarios';
 import { puedeAdministrarUsuarios } from './permisos';
 import { useSesion } from './sesion';
 
@@ -47,9 +48,6 @@ function SoloTitular() {
   return usuario && puedeAdministrarUsuarios(usuario) ? <Outlet /> : <Result status="403" title="No tenés permiso para ver esta página." />;
 }
 
-/** Filled in by the tickets of each page (#17 to #20). */
-const Pendiente = ({ titulo }: { titulo: string }) => <Typography.Title level={2}>{titulo}</Typography.Title>;
-
 export function App() {
   return (
     <Routes>
@@ -60,7 +58,7 @@ export function App() {
         <Route path="expedientes/:id" element={<ExpedienteDetalle />} />
         <Route path="clientes" element={<Clientes />} />
         <Route element={<SoloTitular />}>
-          <Route path="usuarios" element={<Pendiente titulo="Usuarios" />} />
+          <Route path="usuarios" element={<Usuarios />} />
         </Route>
         <Route path={RUTA_CAMBIO} element={<CambiarPassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />
