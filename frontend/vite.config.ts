@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
       // The firm's zone on every machine, so a day read through `new Date()` shows up wrong in the tests too.
       env: { TZ: 'America/Argentina/Buenos_Aires' },
       setupFiles: './src/test/setup.ts',
-      // Ant Design pages are slow under jsdom: with coverage and every page file in parallel, role queries can pass 30 s.
-      testTimeout: 60_000,
+      // Ant Design components are slow to render under jsdom while files run in parallel.
+      testTimeout: 30_000,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
