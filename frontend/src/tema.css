@@ -41,7 +41,8 @@ h4.ant-typography {
   }
 }
 
-@media (prefers-reduced-transparency: reduce) {
+/* #f5f5f5 is Ant Design's layout background (colorBgLayout), so the header turns solid in the page's own color. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .ant-layout-header.encabezado {
     background: #f5f5f5;
     backdrop-filter: none;
@@ -50,8 +51,6 @@ h4.ant-typography {
 
 @media (prefers-contrast: more) {
   .ant-layout-header.encabezado {
-    background: #f5f5f5;
-    backdrop-filter: none;
     border-bottom: 1px solid rgba(0, 0, 0, 0.45);
   }
 }

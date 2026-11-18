@@ -72,6 +72,7 @@ Tests render the real app with Testing Library and replace only `fetch` (`simula
 | `api.ts` | `api.test.ts` | Cookie and JSON body, 204, API errors, non-JSON answers, network failures, which 401 ends the session |
 | `errores.ts` | `errores.test.ts` | Translation by `code`, generic fallback, fields marked from `details` (used by the case, movimiento, fee and hearing forms) |
 | `permisos.ts` | `permisos.test.ts` | Each profile on each permission: users, seeing, opening and changing a case, fees, picking the lawyer |
+| `tema.tsx` | `tema.test.tsx` | System font, curves without overshoot, animations off and on as the reduced-motion setting changes (ADR 0009) |
 | `App.tsx`, `sesion.tsx` | `App.test.tsx` | Session guard, retry when `/auth/me` fails, forced password change, no-permission page |
 | `AppLayout.tsx` | `App.test.tsx` | Menu by role, logout, voluntary password change |
 | `pages/Login.tsx` | `pages/Login.test.tsx` | Successful login, errors shown in the form, required fields |
