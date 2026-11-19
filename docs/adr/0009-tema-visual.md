@@ -2,7 +2,7 @@
 
 - Status: accepted
 - Date: 2026-11-18
-- Ticket: none (style pass on top of the finished frontend)
+- Ticket: #32
 
 ## Context
 
