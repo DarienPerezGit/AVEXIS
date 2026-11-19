@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../theme.js"></script>
     <style type='text/css'>
         .coverage-summary .sorter {
             background-image: url(../../sort-arrow-sprite.png);
@@ -19,34 +20,44 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/scripts</a> database-target.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>0/7</span>
             </div>
         
             
@@ -87,39 +98,39 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Hosts and database of a MongoDB URI without the credentials or options, so a script can say where it writes.
  * Plain string handling instead of `new URL`: that throws on multi-host URIs and its error message carries the full URI,
  * password included.
  */
-<span class="cstat-no" title="statement not covered" >export function describeDatabase(uri: string) {</span>
-<span class="cstat-no" title="statement not covered" >  const sinEsquema = uri.slice(uri.indexOf('://') + 3);</span>
-<span class="cstat-no" title="statement not covered" >  const sinCredenciales = sinEsquema.slice(sinEsquema.lastIndexOf('@') + 1);</span>
+export function <span class="fstat-no" title="function not covered" >describeDatabase(u</span>ri: string) {
+  const sinEsquema = <span class="cstat-no" title="statement not covered" >uri.slice(uri.indexOf('://') + 3);</span>
+  const sinCredenciales = <span class="cstat-no" title="statement not covered" >sinEsquema.slice(sinEsquema.lastIndexOf('@') + 1);</span>
 <span class="cstat-no" title="statement not covered" >  return sinCredenciales.split('?')[0];</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+}
 &nbsp;
 /** Like the check in `config/env.ts`, which scripts cannot import because it also requires the JWT secret. */
-<span class="cstat-no" title="statement not covered" >export function requireEnv(name: string) {</span>
-<span class="cstat-no" title="statement not covered" >  const value = process.env[name];</span>
+export function <span class="fstat-no" title="function not covered" >requireEnv(n</span>ame: string) {
+  const value = <span class="cstat-no" title="statement not covered" >process.env[name];</span>
 <span class="cstat-no" title="statement not covered" >  if (!value) {</span>
 <span class="cstat-no" title="statement not covered" >    throw new Error(`Missing required environment variable: ${name}`);</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
+  }
 <span class="cstat-no" title="statement not covered" >  return value;</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -127,7 +138,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-19T00:42:57.371Z
+                at 2026-11-19T04:32:23.250Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -7,7 +7,8 @@ export function useTestDatabase() {
   let server: MongoMemoryServer;
 
   beforeAll(async () => {
-    server = await MongoMemoryServer.create();
+    // Files run in parallel and each starts its own mongod: with many at once the default 10 s launch limit is not enough.
+    server = await MongoMemoryServer.create({ instance: { launchTimeout: 60_000 } });
     await mongoose.connect(server.getUri());
     await mongoose.connection.syncIndexes();
   });

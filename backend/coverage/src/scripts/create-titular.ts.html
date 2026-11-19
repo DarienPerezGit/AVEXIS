@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../theme.js"></script>
     <style type='text/css'>
         .coverage-summary .sorter {
             background-image: url(../../sort-arrow-sprite.png);
@@ -19,34 +20,44 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
         <h1><a href="../../index.html">All files</a> / <a href="index.html">src/scripts</a> create-titular.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/23</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
@@ -89,58 +100,58 @@
 <a name='L24'></a><a href='#L24'>24</a>
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L27'></a><a href='#L27'>27</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >// npm run create-titular: installs the firm's first owner. Safe in production: it deletes nothing.</span></span></span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// npm run create-titular: installs the firm's first owner. Safe in production: it deletes nothing.
 // Reads TITULAR_NOMBRE, TITULAR_EMAIL and TITULAR_PASSWORD; the password is temporary and must be changed on first login.
-<span class="cstat-no" title="statement not covered" >import 'dotenv/config';</span>
-<span class="cstat-no" title="statement not covered" >import { connectDatabase, disconnectDatabase } from '../config/database.js';</span>
-<span class="cstat-no" title="statement not covered" >import { crearTitularInicial } from '../usuarios/titular-inicial.js';</span>
-<span class="cstat-no" title="statement not covered" >import { describeDatabase, requireEnv } from './database-target.js';</span>
+import 'dotenv/config';
+import { connectDatabase, disconnectDatabase } from '../config/database.js';
+import { crearTitularInicial } from '../usuarios/titular-inicial.js';
+import { describeDatabase, requireEnv } from './database-target.js';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >const uri = requireEnv('MONGODB_URI');</span>
-<span class="cstat-no" title="statement not covered" >const database = describeDatabase(uri);</span>
-<span class="cstat-no" title="statement not covered" >const titular = {</span>
-<span class="cstat-no" title="statement not covered" >  nombre: requireEnv('TITULAR_NOMBRE'),</span>
-<span class="cstat-no" title="statement not covered" >  email: requireEnv('TITULAR_EMAIL'),</span>
-<span class="cstat-no" title="statement not covered" >  password: requireEnv('TITULAR_PASSWORD'),</span>
-<span class="cstat-no" title="statement not covered" >};</span>
+const uri = <span class="cstat-no" title="statement not covered" >requireEnv('MONGODB_URI');</span>
+const database = <span class="cstat-no" title="statement not covered" >describeDatabase(uri);</span>
+const titular = <span class="cstat-no" title="statement not covered" >{</span>
+  nombre: requireEnv('TITULAR_NOMBRE'),
+  email: requireEnv('TITULAR_EMAIL'),
+  password: requireEnv('TITULAR_PASSWORD'),
+};
 &nbsp;
 <span class="cstat-no" title="statement not covered" >await connectDatabase(uri);</span>
 <span class="cstat-no" title="statement not covered" >try {</span>
-<span class="cstat-no" title="statement not covered" >  const { creado } = await crearTitularInicial(titular);</span>
+  const { creado } = <span class="cstat-no" title="statement not covered" >await crearTitularInicial(titular);</span>
 <span class="cstat-no" title="statement not covered" >  console.log(</span>
-<span class="cstat-no" title="statement not covered" >    creado</span>
-<span class="cstat-no" title="statement not covered" >      ? `Firm owner ${titular.email} created in ${database}; they must change the password on first login`</span>
-<span class="cstat-no" title="statement not covered" >      : `${database} already has an active firm owner; nothing was created`,</span>
-<span class="cstat-no" title="statement not covered" >  );</span>
-<span class="cstat-no" title="statement not covered" >} finally {</span>
+    creado
+      ? `Firm owner ${titular.email} created in ${database}; they must change the password on first login`
+      : `${database} already has an active firm owner; nothing was created`,
+  );
+} finally {
 <span class="cstat-no" title="statement not covered" >  await disconnectDatabase();</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -148,7 +159,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-19T00:42:57.371Z
+                at 2026-11-19T04:32:23.250Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
