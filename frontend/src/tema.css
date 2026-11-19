@@ -1,0 +1,56 @@
+/*
+ * What Ant Design's theme tokens cannot express (tema.tsx holds the rest). Selectors carry two classes so they win
+ * over Ant Design's own rules whatever the order the styles load in.
+ */
+
+body {
+  /* Same font as the theme in tema.tsx, for the text outside Ant Design's components. */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Large type reads too loose with the spacing of small type: headings tighten as they grow, body text stays as is. */
+h1.ant-typography,
+h2.ant-typography {
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+h3.ant-typography,
+h4.ant-typography {
+  letter-spacing: -0.01em;
+}
+
+/* The header floats over the page: content scrolls under it, blurred, instead of under an opaque strip. */
+.ant-layout-header.encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(245, 245, 245, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Feedback on the press itself, not on release, so the click feels answered at once. */
+.ant-btn.ant-btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ant-btn.ant-btn:not(:disabled):active {
+    transform: none;
+  }
+}
+
+/* #f5f5f5 is Ant Design's layout background (colorBgLayout), so the header turns solid in the page's own color. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .ant-layout-header.encabezado {
+    background: #f5f5f5;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ant-layout-header.encabezado {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+  }
+}

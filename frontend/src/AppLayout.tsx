@@ -4,7 +4,8 @@ import { mensajeDeError } from './errores';
 import { puedeAdministrarUsuarios } from './permisos';
 import { useSesion } from './sesion';
 
-const encabezado = { display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, background: 'transparent' };
+// The background lives in tema.css: it is translucent, and the user's transparency setting can turn it solid.
+const encabezado = { display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16 };
 
 export function AppLayout() {
   const { usuario, salir } = useSesion();
@@ -28,7 +29,7 @@ export function AppLayout() {
         <Menu theme="dark" mode="inline" selectedKeys={[`/${pathname.split('/')[1]}`]} items={secciones} />
       </Layout.Sider>
       <Layout>
-        <Layout.Header style={encabezado}>
+        <Layout.Header className="encabezado" style={encabezado}>
           <Typography.Text>{usuario?.nombre}</Typography.Text>
           <Link to="/cambiar-password">Cambiar contraseña</Link>
           <Button onClick={() => salir().catch((error: unknown) => message.error(mensajeDeError(error)))}>Cerrar sesión</Button>

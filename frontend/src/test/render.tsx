@@ -1,10 +1,10 @@
 import { StyleProvider } from '@ant-design/cssinjs';
 import { render } from '@testing-library/react';
-import { App as AntApp, ConfigProvider } from 'antd';
-import esES from 'antd/locale/es_ES';
+import { App as AntApp } from 'antd';
 import { MemoryRouter } from 'react-router';
 import { App } from '../App';
 import { SesionProvider } from '../sesion';
+import { Tema } from '../tema';
 
 /**
  * Where Ant Design writes its styles under test: an element outside the document. jsdom reads every rule in the
@@ -17,7 +17,7 @@ const estilosFueraDelDocumento = document.createElement('div');
 export function renderApp(ruta = '/') {
   return render(
     <StyleProvider container={estilosFueraDelDocumento}>
-      <ConfigProvider locale={esES}>
+      <Tema>
         <MemoryRouter initialEntries={[ruta]}>
           <AntApp>
             <SesionProvider>
@@ -25,7 +25,7 @@ export function renderApp(ruta = '/') {
             </SesionProvider>
           </AntApp>
         </MemoryRouter>
-      </ConfigProvider>
+      </Tema>
     </StyleProvider>,
   );
 }
