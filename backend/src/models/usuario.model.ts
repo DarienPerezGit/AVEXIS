@@ -16,6 +16,10 @@ export interface UsuarioDoc {
   debeCambiarPassword: boolean
   /** Travels in every token; bumping it on a password change or reset invalidates all earlier tokens. */
   versionSesion: number
+  /** Base32 TOTP secret. Stored on setup but only enforced once `totpActivo` is true. */
+  totpSecret?: string
+  /** Login asks for the authenticator code only when this is true (2FA is opt-in). */
+  totpActivo: boolean
 }
 
 const usuarioSchema = new Schema<UsuarioDoc>(
@@ -44,6 +48,8 @@ const usuarioSchema = new Schema<UsuarioDoc>(
     activo: { type: Boolean, default: true },
     debeCambiarPassword: { type: Boolean, default: false },
     versionSesion: { type: Number, default: 0 },
+    totpSecret: { type: String, select: false },
+    totpActivo: { type: Boolean, default: false },
   },
   {
     timestamps: true,
@@ -53,6 +59,7 @@ const usuarioSchema = new Schema<UsuarioDoc>(
       transform: (_doc, ret: Record<string, unknown>) => {
         delete ret.passwordHash
         delete ret.versionSesion
+        delete ret.totpSecret
         delete ret.__v
         return ret
       },

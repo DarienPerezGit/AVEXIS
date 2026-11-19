@@ -6,6 +6,8 @@ export interface Usuario {
   esTitular: boolean;
   activo: boolean;
   debeCambiarPassword: boolean;
+  /** Two-factor authentication (authenticator app) is on. */
+  totpActivo: boolean;
 }
 
 /**

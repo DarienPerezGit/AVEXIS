@@ -30,6 +30,8 @@ interface UsuarioInput {
   esTitular?: boolean;
   activo?: boolean;
   debeCambiarPassword?: boolean;
+  totpSecret?: string;
+  totpActivo?: boolean;
 }
 
 let sequence = 0;

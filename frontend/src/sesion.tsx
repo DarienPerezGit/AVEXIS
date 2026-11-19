@@ -10,7 +10,8 @@ interface Sesion {
   /** The API could not say who is here. It does not mean there is no session, so the login is not the answer. */
   falloLaCarga: boolean;
   cargar: () => Promise<void>;
-  entrar: (email: string, password: string) => Promise<void>;
+  /** Resolves true when the account has 2FA and still needs the authenticator code: no session has started yet. */
+  entrar: (email: string, password: string, codigo?: string) => Promise<boolean>;
   salir: () => Promise<void>;
   recargar: () => Promise<void>;
 }
@@ -42,9 +43,13 @@ export function SesionProvider({ children }: { children: ReactNode }) {
     }
   }, [recargar]);
 
-  const entrar = useCallback(async (email: string, password: string) => {
-    const res = await api<{ usuario: Usuario }>('/auth/login', { method: 'POST', body: { email, password } });
+  const entrar = useCallback(async (email: string, password: string, codigo?: string) => {
+    const res = await api<{ usuario?: Usuario; requiereTotp?: boolean }>('/auth/login', { method: 'POST', body: { email, password, codigo } });
+    if (!res.usuario) {
+      return true;
+    }
     setUsuario(res.usuario);
+    return false;
   }, []);
 
   const salir = useCallback(async () => {

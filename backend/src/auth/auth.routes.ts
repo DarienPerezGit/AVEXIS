@@ -10,6 +10,7 @@ import type { UsuarioDoc } from '../models/index.js';
 import type { AuthConfig } from './config.js';
 import { SESSION_COOKIE, authenticate } from './middleware.js';
 import type { SessionPayload } from './middleware.js';
+import { codigoValido, datosDeAlta, nuevoSecreto } from './totp.js';
 import { assertPasswordPolicy, replacePassword, verifyPassword } from './password.js';
 
 export function createAuthRouter(config: AuthConfig) {
@@ -37,9 +38,9 @@ export function createAuthRouter(config: AuthConfig) {
   });
 
   router.post('/login', loginLimiter, async (req, res) => {
-    const { email, password } = req.body ?? {};
+    const { email, password, codigo } = req.body ?? {};
     // String() turns a body like { "$ne": null } into plain text, so it cannot act as a query operator.
-    const usuario = await Usuario.findOne({ email: String(email) }).select('+passwordHash');
+    const usuario = await Usuario.findOne({ email: String(email) }).select('+passwordHash +totpSecret');
     const passwordMatches = await verifyPassword(password, usuario?.passwordHash);
     if (!usuario || !passwordMatches) {
       throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password');
@@ -47,6 +48,17 @@ export function createAuthRouter(config: AuthConfig) {
     // Checked after the password, so only someone who knows it learns the account is disabled.
     if (!usuario.activo) {
       throw new AppError(403, 'ACCOUNT_DISABLED', 'This account is disabled. Contact the firm owner.');
+    }
+
+    // 2FA is opt-in. Without a code the password alone opens nothing; the client asks for it and sends everything again.
+    if (usuario.totpActivo) {
+      if (codigo === undefined) {
+        res.json({ requiereTotp: true });
+        return;
+      }
+      if (!codigoValido(usuario.totpSecret, usuario.email, codigo)) {
+        throw new AppError(401, 'INVALID_TOTP', 'The authenticator code is wrong or expired');
+      }
     }
 
     startSession(res, usuario);
@@ -76,6 +88,48 @@ export function createAuthRouter(config: AuthConfig) {
     // Every earlier token is now void, including this device's; a fresh one keeps it logged in.
     startSession(res, usuario);
     res.status(204).end();
+  });
+
+  const authenticateStrict = authenticate(config);
+
+  router.post('/me/2fa/setup', authenticateStrict, async (req, res) => {
+    const usuario = req.usuario!;
+    if (usuario.totpActivo) {
+      throw new AppError(409, 'TOTP_ALREADY_ENABLED', 'Two-factor authentication is already enabled');
+    }
+    // A new secret each time: an abandoned setup leaves nothing enforced, since totpActivo stays false.
+    usuario.totpSecret = nuevoSecreto();
+    await usuario.save();
+    res.json(await datosDeAlta(usuario.totpSecret, usuario.email));
+  });
+
+  router.post('/me/2fa/enable', authenticateStrict, async (req, res) => {
+    const usuario = await Usuario.findById(req.usuario!.id).select('+totpSecret').orFail();
+    if (usuario.totpActivo || !usuario.totpSecret) {
+      throw new AppError(409, 'TOTP_NOT_PENDING', 'Start the setup first');
+    }
+    if (!codigoValido(usuario.totpSecret, usuario.email, req.body?.codigo)) {
+      throw new AppError(401, 'INVALID_TOTP', 'The authenticator code is wrong or expired');
+    }
+    usuario.totpActivo = true;
+    await usuario.save();
+    res.json({ usuario });
+  });
+
+  router.post('/me/2fa/disable', authenticateStrict, async (req, res) => {
+    const { password, codigo } = req.body ?? {};
+    const usuario = await Usuario.findById(req.usuario!.id).select('+passwordHash +totpSecret').orFail();
+    // Both factors, so someone at an unattended open session cannot turn the protection off.
+    if (!(await verifyPassword(password, usuario.passwordHash))) {
+      throw new AppError(401, 'INVALID_CREDENTIALS', 'Current password is wrong');
+    }
+    if (!usuario.totpActivo || !codigoValido(usuario.totpSecret, usuario.email, codigo)) {
+      throw new AppError(401, 'INVALID_TOTP', 'The authenticator code is wrong or expired');
+    }
+    usuario.totpActivo = false;
+    usuario.totpSecret = undefined;
+    await usuario.save();
+    res.json({ usuario });
   });
 
   return router;

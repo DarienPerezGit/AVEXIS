@@ -31,6 +31,7 @@ export function AppLayout() {
       <Layout>
         <Layout.Header className="encabezado" style={encabezado}>
           <Typography.Text>{usuario?.nombre}</Typography.Text>
+          <Link to="/seguridad">Seguridad</Link>
           <Link to="/cambiar-password">Cambiar contraseña</Link>
           <Button onClick={() => salir().catch((error: unknown) => message.error(mensajeDeError(error)))}>Cerrar sesión</Button>
         </Layout.Header>

@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Space, Table, Tag, Typography } from 'antd';
+import { App as AntApp, Alert, Button, Flex, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
@@ -16,6 +16,7 @@ const columnasDeDatos: TableColumnsType<Usuario> = [
   { title: 'Rol', key: 'rol', render: (_valor, u) => ROLES[u.rol].etiqueta },
   { title: 'Titular', key: 'titular', render: (_valor, u) => u.esTitular && <Tag color="gold">Titular</Tag> },
   { title: 'Estado', key: 'estado', render: (_valor, u) => (u.activo ? <Tag color="green">Activo</Tag> : <Tag>Inactivo</Tag>) },
+  { title: '2FA', key: 'totp', render: (_valor, u) => u.totpActivo && <Tag color="green">Activa</Tag> },
   { title: 'Cambio de contraseña', key: 'password', render: (_valor, u) => u.debeCambiarPassword && <Tag color="orange">Pendiente</Tag> },
 ];
 
@@ -30,6 +31,7 @@ export function Usuarios() {
   const [error, setError] = useState<string>();
   const [recargas, setRecargas] = useState(0);
   const [abierto, setAbierto] = useState<Abierto>();
+  const { message } = AntApp.useApp();
 
   useEffect(() => {
     setCargando(true);
@@ -48,6 +50,15 @@ export function Usuarios() {
     setRecargas((n) => n + 1);
   };
 
+  // For a lost phone: the user can enroll again from Seguridad.
+  const quitarTotp = (u: Usuario) =>
+    api(`/usuarios/${u._id}/reset-2fa`, { method: 'POST' })
+      .then(() => {
+        message.success('Se quitó la verificación en dos pasos.');
+        setRecargas((n) => n + 1);
+      })
+      .catch((causa: unknown) => message.error(mensajeDeError(causa)));
+
   const columnas: TableColumnsType<Usuario> = [
     ...columnasDeDatos,
     {
@@ -64,6 +75,11 @@ export function Usuarios() {
             <Button size="small" onClick={() => setAbierto({ accion: 'resetear', usuario: u })}>
               Resetear contraseña
             </Button>
+            {u.totpActivo && (
+              <Popconfirm title="¿Quitar la verificación en dos pasos?" okText="Quitar" cancelText="Cancelar" onConfirm={() => quitarTotp(u)}>
+                <Button size="small">Quitar 2FA</Button>
+              </Popconfirm>
+            )}
           </Space>
         ),
     },

@@ -36,14 +36,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -57,7 +57,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/10</span>
+                <span class='fraction'>11/11</span>
             </div>
         
             
@@ -128,7 +128,22 @@
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
-<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -139,23 +154,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,18 +220,21 @@ import { useSesion } from '../sesion';
 interface Credenciales {
   email: string;
   password: string;
+  codigo?: string;
 }
 &nbsp;
 export function Login() {
   const { entrar } = useSesion();
   const [error, setError] = useState&lt;string&gt;();
   const [enviando, setEnviando] = useState(false);
+  // The password was right and the account has 2FA: the same form now also asks for the app's code.
+  const [pideCodigo, setPideCodigo] = useState(false);
 &nbsp;
-  async function enviar({ email, password }: Credenciales) {
+  async function enviar({ email, password, codigo }: Credenciales) {
     setError(undefined);
     setEnviando(true);
     try {
-      await entrar(email, password);
+      setPideCodigo(await entrar(email, password, pideCodigo ? codigo : undefined));
     } catch (causa) {
       setError(mensajeDeError(causa));
     } finally {
@@ -227,9 +260,21 @@ export function Login() {
           &lt;Form.Item label="Contraseña" name="password" rules={[{ required: true, message: 'Ingresá tu contraseña.' }]}&gt;
             &lt;Input.Password autoComplete="current-password" /&gt;
           &lt;/Form.Item&gt;
+          {pideCodigo &amp;&amp; (
+            &lt;Form.Item
+              label="Código de la app de autenticación"
+              name="codigo"
+              rules={[
+                { required: true, message: 'Ingresá el código de tu app.' },
+                { pattern: /^\d{6}$/, message: 'Son 6 números.' },
+              ]}
+            &gt;
+              &lt;Input autoComplete="one-time-code" inputMode="numeric" maxLength={6} autoFocus /&gt;
+            &lt;/Form.Item&gt;
+          )}
           {error &amp;&amp; &lt;Alert type="error" title={error} style={{ marginBottom: 16 }} /&gt;}
           &lt;Button type="primary" htmlType="submit" block loading={enviando}&gt;
-            Entrar
+            {pideCodigo ? 'Verificar' : 'Entrar'}
           &lt;/Button&gt;
         &lt;/Form&gt;
       &lt;/Card&gt;
@@ -243,7 +288,7 @@ export function Login() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-18T23:29:13.740Z
+                at 2026-11-19T03:42:59.334Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

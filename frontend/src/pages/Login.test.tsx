@@ -45,6 +45,53 @@ describe('login', () => {
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
   });
 
+  describe('with 2FA on', () => {
+    const CODIGO = 'Código de la app de autenticación';
+
+    it('asks for the app code after the password and enters with it', async () => {
+      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+      renderApp('/login');
+
+      await ingresar();
+      const campo = await screen.findByLabelText(CODIGO);
+      expect(screen.queryByRole('heading', { name: 'Agenda' })).not.toBeInTheDocument();
+
+      api.rutas['POST /api/auth/login'] = [200, { usuario: ABOGADO }];
+      fireEvent.change(campo, { target: { value: '123456' } });
+      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+
+      expect(await screen.findByRole('heading', { name: 'Agenda' })).toBeInTheDocument();
+      const envios = api.llamadas.filter(({ ruta }) => ruta === 'POST /api/auth/login');
+      expect(envios[1]?.body).toEqual({ email: 'abogado@avexis.demo', password: 'demo avexis 2026', codigo: '123456' });
+    });
+
+    it('shows a wrong code and keeps asking for it', async () => {
+      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+      renderApp('/login');
+      await ingresar();
+      const campo = await screen.findByLabelText(CODIGO);
+
+      api.rutas['POST /api/auth/login'] = errorDeApi('INVALID_TOTP', 401);
+      fireEvent.change(campo, { target: { value: '000000' } });
+      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+
+      expect(await screen.findByText('El código de la app no es correcto o ya venció.')).toBeInTheDocument();
+      expect(screen.getByLabelText(CODIGO)).toBeInTheDocument();
+    });
+
+    it('asks for six digits before sending the code', async () => {
+      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+      renderApp('/login');
+      await ingresar();
+      fireEvent.change(await screen.findByLabelText(CODIGO), { target: { value: '12' } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+
+      expect(await screen.findByText('Son 6 números.')).toBeInTheDocument();
+      expect(api.llamadas.filter(({ ruta }) => ruta === 'POST /api/auth/login')).toHaveLength(1);
+    });
+  });
+
   it('asks for the fields before calling the API', async () => {
     const { rutasLlamadas } = simularApi({ 'GET /api/auth/me': SIN_SESION });
     renderApp('/login');
