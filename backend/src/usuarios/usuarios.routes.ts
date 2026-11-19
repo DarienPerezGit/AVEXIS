@@ -73,5 +73,15 @@ export function createUsuariosRouter(config: AuthConfig) {
     res.status(204).end();
   });
 
+  // For a lost phone: the owner removes the second factor, and the user can enroll again.
+  router.post('/:id/reset-2fa', async (req, res) => {
+    const usuario = await findUsuario(req.params.id);
+    usuario.totpActivo = false;
+    usuario.totpSecret = undefined;
+    usuario.versionSesion += 1;
+    await usuario.save();
+    res.status(204).end();
+  });
+
   return router;
 }

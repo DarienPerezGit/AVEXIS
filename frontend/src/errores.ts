@@ -14,6 +14,8 @@ const MENSAJES: Record<string, string> = {
   UNAUTHORIZED: 'Tu sesión terminó. Volvé a entrar.',
   PASSWORD_CHANGE_REQUIRED: 'Tenés que cambiar tu contraseña antes de seguir.',
   CLIENTE_HAS_EXPEDIENTES: 'No se puede eliminar un cliente que tiene expedientes.',
+  INVALID_TOTP: 'El código de la app no es correcto o ya venció.',
+  TOTP_ALREADY_ENABLED: 'La verificación en dos pasos ya está activada.',
   CANNOT_CHANGE_OWN_ACCESS: 'No podés cambiar tu propio acceso.',
 };
 

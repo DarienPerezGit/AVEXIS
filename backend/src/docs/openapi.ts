@@ -75,6 +75,7 @@ const schemas: Record<string, Schema> = {
       esTitular: { type: 'boolean' },
       activo: { type: 'boolean' },
       debeCambiarPassword: { type: 'boolean' },
+      totpActivo: { type: 'boolean', description: 'Two-factor authentication (authenticator app) is on' },
       id: { ...id, description: 'Same value as _id' },
       ...timestamps,
     },
@@ -297,11 +298,11 @@ const PATHS: Record<string, Record<string, Operation>> = {
       tag: 'Auth',
       summary: 'Log in',
       description: 'Sets the `token` session cookie (httpOnly). In Swagger UI, run this first: the browser keeps the cookie and sends it with the next calls.',
-      body: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email', example: 'titular@avexis.demo' }, password: { type: 'string', example: 'demo avexis 2026' } } },
-      ok: [200, 'Logged in', wrap('usuario', ref('Usuario'))],
+      body: { type: 'object', required: ['email', 'password'], properties: { email: { type: 'string', format: 'email', example: 'titular@avexis.demo' }, password: { type: 'string', example: 'demo avexis 2026' }, codigo: { type: 'string', description: '6-digit authenticator code. Only for users with 2FA on.', example: '123456' } } },
+      ok: [200, 'Logged in. A user with 2FA on who sends no codigo gets { requiereTotp: true } and no session: send the request again with the code.', wrap('usuario', ref('Usuario'))],
       errors: [401, 403, 429],
       errorExamples: {
-        401: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' },
+        401: { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password (INVALID_TOTP when the authenticator code is wrong)' },
         403: { code: 'ACCOUNT_DISABLED', message: 'This account is disabled. Contact the firm owner.' },
       },
     },
@@ -322,6 +323,37 @@ const PATHS: Record<string, Record<string, Operation>> = {
       body: { type: 'object', required: ['actual', 'nueva'], properties: { actual: { type: 'string' }, nueva: { type: 'string', minLength: 15, maxLength: 64 } } },
       ok: [204, 'Password changed; this device gets a fresh session cookie'],
       errors: [400],
+    },
+  },
+  '/api/auth/me/2fa/setup': {
+    post: {
+      tag: 'Auth',
+      summary: 'Start enabling 2FA',
+      roles: ALL,
+      description: 'Returns the secret, the otpauth URL and a QR (PNG data URL) to scan with an authenticator app. 2FA is not enforced until /enable succeeds.',
+      ok: [200, 'Enrollment data', { type: 'object', properties: { otpauthUrl: { type: 'string' }, qr: { type: 'string' }, secret: { type: 'string' } } }],
+      errors: [409],
+    },
+  },
+  '/api/auth/me/2fa/enable': {
+    post: {
+      tag: 'Auth',
+      summary: 'Confirm and enable 2FA',
+      roles: ALL,
+      body: { type: 'object', required: ['codigo'], properties: { codigo: { type: 'string', example: '123456' } } },
+      ok: [200, '2FA is on', wrap('usuario', ref('Usuario'))],
+      errors: [401, 409],
+    },
+  },
+  '/api/auth/me/2fa/disable': {
+    post: {
+      tag: 'Auth',
+      summary: 'Disable 2FA',
+      roles: ALL,
+      description: 'Needs both the current password and a current authenticator code.',
+      body: { type: 'object', required: ['password', 'codigo'], properties: { password: { type: 'string' }, codigo: { type: 'string' } } },
+      ok: [200, '2FA is off', wrap('usuario', ref('Usuario'))],
+      errors: [401],
     },
   },
   '/api/usuarios': {
@@ -368,6 +400,16 @@ const PATHS: Record<string, Record<string, Operation>> = {
       body: { type: 'object', required: ['password'], properties: { password: { type: 'string', minLength: 15, maxLength: 64 } } },
       ok: [204, 'Password reset'],
       errors: [400, 404],
+    },
+  },
+  '/api/usuarios/{id}/reset-2fa': {
+    post: {
+      tag: 'Usuarios',
+      summary: 'Remove a user 2FA',
+      roles: 'titular',
+      description: 'For a lost phone. The user open sessions end and they can enroll again.',
+      ok: [204, '2FA removed'],
+      errors: [404],
     },
   },
   '/api/clientes': {

@@ -170,4 +170,29 @@ describe('usuarios page', () => {
     expect(llamadaA(api, 'POST /api/usuarios/2/reset-password')?.body).toEqual({ password: TEMPORAL });
     await waitFor(() => expect(hayDialogo('Resetear contraseña de Ana Diaz')).toBe(false));
   });
+
+  it('shows who has 2FA and lets the owner remove it after confirming', async () => {
+    const api = listaCon([{ ...ABOGADO, totpActivo: true }, ASISTENTE, TITULAR], { 'POST /api/usuarios/2/reset-2fa': [204] });
+    renderApp('/usuarios');
+    expect(await screen.findByText('Ana Diaz', { selector: 'td' })).toBeInTheDocument();
+    expect(fila('Ana Diaz').getByText('Activa')).toBeInTheDocument();
+    expect(fila('Carla Ruiz').queryByRole('button', { name: 'Quitar 2FA' })).not.toBeInTheDocument();
+
+    api.rutas['GET /api/usuarios'] = [200, { usuarios: [ABOGADO, ASISTENTE, TITULAR] }];
+    await userEvent.click(fila('Ana Diaz').getByRole('button', { name: 'Quitar 2FA' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Quitar' }));
+
+    await waitFor(() => expect(fila('Ana Diaz').queryByText('Activa')).not.toBeInTheDocument());
+    expect(llamadaA(api, 'POST /api/usuarios/2/reset-2fa')).toBeDefined();
+  });
+
+  it('shows the error when removing 2FA fails', async () => {
+    listaCon([{ ...ABOGADO, totpActivo: true }, TITULAR], { 'POST /api/usuarios/2/reset-2fa': errorDeApi('NOT_FOUND', 404) });
+    renderApp('/usuarios');
+    await userEvent.click(await within((await screen.findByText('Ana Diaz', { selector: 'td' })).closest<HTMLElement>('tr')!).findByRole('button', { name: 'Quitar 2FA' }));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Quitar' }));
+
+    expect(await screen.findByText('No se encontró lo que buscabas.')).toBeInTheDocument();
+  });
 });

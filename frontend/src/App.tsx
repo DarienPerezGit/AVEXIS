@@ -7,6 +7,7 @@ import { Clientes } from './pages/Clientes';
 import { ExpedienteDetalle } from './pages/ExpedienteDetalle';
 import { Expedientes } from './pages/Expedientes';
 import { Login } from './pages/Login';
+import { Seguridad } from './pages/Seguridad';
 import { Usuarios } from './pages/Usuarios';
 import { puedeAdministrarUsuarios } from './permisos';
 import { useSesion } from './sesion';
@@ -60,6 +61,7 @@ export function App() {
         <Route element={<SoloTitular />}>
           <Route path="usuarios" element={<Usuarios />} />
         </Route>
+        <Route path="seguridad" element={<Seguridad />} />
         <Route path={RUTA_CAMBIO} element={<CambiarPassword />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
