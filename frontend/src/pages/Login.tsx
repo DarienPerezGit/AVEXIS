@@ -13,14 +13,18 @@ export function Login() {
   const { entrar } = useSesion();
   const [error, setError] = useState<string>();
   const [enviando, setEnviando] = useState(false);
-  // The password was right and the account has 2FA: the same form now also asks for the app's code.
-  const [pideCodigo, setPideCodigo] = useState(false);
+  const [form] = Form.useForm<Credenciales>();
 
   async function enviar({ email, password, codigo }: Credenciales) {
     setError(undefined);
     setEnviando(true);
     try {
-      setPideCodigo(await entrar(email, password, pideCodigo ? codigo : undefined));
+      // The code is optional here: accounts without 2FA ignore it, and one with 2FA answers that it is missing.
+      const faltaCodigo = await entrar(email, password, codigo || undefined);
+      if (faltaCodigo) {
+        setError('Tu cuenta tiene la verificación en dos pasos activada. Ingresá el código de tu app.');
+        form.focusField('codigo');
+      }
     } catch (causa) {
       setError(mensajeDeError(causa));
     } finally {
@@ -32,7 +36,7 @@ export function Login() {
     <Flex justify="center" align="center" style={{ minHeight: '100vh', padding: 16 }}>
       <Card style={{ width: 380 }}>
         <Typography.Title level={2}>AVEXIS</Typography.Title>
-        <Form layout="vertical" onFinish={enviar} requiredMark={false}>
+        <Form form={form} layout="vertical" onFinish={enviar} requiredMark={false}>
           <Form.Item
             label="Email"
             name="email"
@@ -46,21 +50,16 @@ export function Login() {
           <Form.Item label="Contraseña" name="password" rules={[{ required: true, message: 'Ingresá tu contraseña.' }]}>
             <Input.Password autoComplete="current-password" />
           </Form.Item>
-          {pideCodigo && (
-            <Form.Item
-              label="Código de la app de autenticación"
-              name="codigo"
-              rules={[
-                { required: true, message: 'Ingresá el código de tu app.' },
-                { pattern: /^\d{6}$/, message: 'Son 6 números.' },
-              ]}
-            >
-              <Input autoComplete="one-time-code" inputMode="numeric" maxLength={6} autoFocus />
-            </Form.Item>
-          )}
+          <Form.Item
+            label="Código de verificación (si activaste el 2FA)"
+            name="codigo"
+            rules={[{ pattern: /^\d{6}$/, message: 'Son 6 números.' }]}
+          >
+            <Input autoComplete="one-time-code" inputMode="numeric" maxLength={6} />
+          </Form.Item>
           {error && <Alert type="error" title={error} style={{ marginBottom: 16 }} />}
           <Button type="primary" htmlType="submit" block loading={enviando}>
-            {pideCodigo ? 'Verificar' : 'Entrar'}
+            Entrar
           </Button>
         </Form>
       </Card>

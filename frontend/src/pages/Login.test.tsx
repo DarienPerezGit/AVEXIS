@@ -45,50 +45,58 @@ describe('login', () => {
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeInTheDocument();
   });
 
-  describe('with 2FA on', () => {
-    const CODIGO = 'Código de la app de autenticación';
+  describe('2FA code', () => {
+    const CODIGO = 'Código de verificación (si activaste el 2FA)';
 
-    it('asks for the app code after the password and enters with it', async () => {
-      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+    it('is on the form from the start, optional, and sent with the password in one request', async () => {
+      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { usuario: ABOGADO }] });
       renderApp('/login');
 
-      await ingresar();
-      const campo = await screen.findByLabelText(CODIGO);
-      expect(screen.queryByRole('heading', { name: 'Agenda' })).not.toBeInTheDocument();
-
-      api.rutas['POST /api/auth/login'] = [200, { usuario: ABOGADO }];
-      fireEvent.change(campo, { target: { value: '123456' } });
-      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+      fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'abogado@avexis.demo' } });
+      fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'demo avexis 2026' } });
+      fireEvent.change(screen.getByLabelText(CODIGO), { target: { value: '123456' } });
+      await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
 
       expect(await screen.findByRole('heading', { name: 'Agenda' })).toBeInTheDocument();
       const envios = api.llamadas.filter(({ ruta }) => ruta === 'POST /api/auth/login');
-      expect(envios[1]?.body).toEqual({ email: 'abogado@avexis.demo', password: 'demo avexis 2026', codigo: '123456' });
+      expect(envios).toHaveLength(1);
+      expect(envios[0]?.body).toEqual({ email: 'abogado@avexis.demo', password: 'demo avexis 2026', codigo: '123456' });
     });
 
-    it('shows a wrong code and keeps asking for it', async () => {
-      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+    it('tells a 2FA account that signs in without the code to type it, and keeps the form', async () => {
+      simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
       renderApp('/login');
-      await ingresar();
-      const campo = await screen.findByLabelText(CODIGO);
 
-      api.rutas['POST /api/auth/login'] = errorDeApi('INVALID_TOTP', 401);
-      fireEvent.change(campo, { target: { value: '000000' } });
-      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+      await ingresar();
+
+      expect(await screen.findByText('Tu cuenta tiene la verificación en dos pasos activada. Ingresá el código de tu app.')).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Agenda' })).not.toBeInTheDocument();
+      expect(screen.getByLabelText(CODIGO)).toHaveFocus();
+    });
+
+    it('shows a wrong code in the form', async () => {
+      simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': errorDeApi('INVALID_TOTP', 401) });
+      renderApp('/login');
+      fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'abogado@avexis.demo' } });
+      fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'demo avexis 2026' } });
+      fireEvent.change(screen.getByLabelText(CODIGO), { target: { value: '000000' } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
 
       expect(await screen.findByText('El código de la app no es correcto o ya venció.')).toBeInTheDocument();
-      expect(screen.getByLabelText(CODIGO)).toBeInTheDocument();
     });
 
-    it('asks for six digits before sending the code', async () => {
-      const api = simularApi({ 'GET /api/auth/me': SIN_SESION, 'POST /api/auth/login': [200, { requiereTotp: true }] });
+    it('asks for six digits when a code is typed, before calling the API', async () => {
+      const { rutasLlamadas } = simularApi({ 'GET /api/auth/me': SIN_SESION });
       renderApp('/login');
-      await ingresar();
-      fireEvent.change(await screen.findByLabelText(CODIGO), { target: { value: '12' } });
+      fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'abogado@avexis.demo' } });
+      fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'demo avexis 2026' } });
+      fireEvent.change(screen.getByLabelText(CODIGO), { target: { value: '12' } });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Entrar' }));
 
       expect(await screen.findByText('Son 6 números.')).toBeInTheDocument();
-      expect(api.llamadas.filter(({ ruta }) => ruta === 'POST /api/auth/login')).toHaveLength(1);
+      expect(rutasLlamadas()).not.toContain('POST /api/auth/login');
     });
   });
 
