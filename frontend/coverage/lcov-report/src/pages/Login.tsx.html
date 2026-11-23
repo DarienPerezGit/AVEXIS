@@ -36,14 +36,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -57,7 +57,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -142,8 +142,7 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L69'></a><a href='#L69'>69</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -155,30 +154,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">20x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">19x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -227,14 +225,18 @@ export function Login() {
   const { entrar } = useSesion();
   const [error, setError] = useState&lt;string&gt;();
   const [enviando, setEnviando] = useState(false);
-  // The password was right and the account has 2FA: the same form now also asks for the app's code.
-  const [pideCodigo, setPideCodigo] = useState(false);
+  const [form] = Form.useForm&lt;Credenciales&gt;();
 &nbsp;
   async function enviar({ email, password, codigo }: Credenciales) {
     setError(undefined);
     setEnviando(true);
     try {
-      setPideCodigo(await entrar(email, password, pideCodigo ? codigo : undefined));
+      // The code is optional here: accounts without 2FA ignore it, and one with 2FA answers that it is missing.
+      const faltaCodigo = await entrar(email, password, codigo || undefined);
+      if (faltaCodigo) {
+        setError('Tu cuenta tiene la verificación en dos pasos activada. Ingresá el código de tu app.');
+        form.focusField('codigo');
+      }
     } catch (causa) {
       setError(mensajeDeError(causa));
     } finally {
@@ -246,7 +248,7 @@ export function Login() {
     &lt;Flex justify="center" align="center" style={{ minHeight: '100vh', padding: 16 }}&gt;
       &lt;Card style={{ width: 380 }}&gt;
         &lt;Typography.Title level={2}&gt;AVEXIS&lt;/Typography.Title&gt;
-        &lt;Form layout="vertical" onFinish={enviar} requiredMark={false}&gt;
+        &lt;Form form={form} layout="vertical" onFinish={enviar} requiredMark={false}&gt;
           &lt;Form.Item
             label="Email"
             name="email"
@@ -260,21 +262,16 @@ export function Login() {
           &lt;Form.Item label="Contraseña" name="password" rules={[{ required: true, message: 'Ingresá tu contraseña.' }]}&gt;
             &lt;Input.Password autoComplete="current-password" /&gt;
           &lt;/Form.Item&gt;
-          {pideCodigo &amp;&amp; (
-            &lt;Form.Item
-              label="Código de la app de autenticación"
-              name="codigo"
-              rules={[
-                { required: true, message: 'Ingresá el código de tu app.' },
-                { pattern: /^\d{6}$/, message: 'Son 6 números.' },
-              ]}
-            &gt;
-              &lt;Input autoComplete="one-time-code" inputMode="numeric" maxLength={6} autoFocus /&gt;
-            &lt;/Form.Item&gt;
-          )}
+          &lt;Form.Item
+            label="Código de verificación (si activaste el 2FA)"
+            name="codigo"
+            rules={[{ pattern: /^\d{6}$/, message: 'Son 6 números.' }]}
+          &gt;
+            &lt;Input autoComplete="one-time-code" inputMode="numeric" maxLength={6} /&gt;
+          &lt;/Form.Item&gt;
           {error &amp;&amp; &lt;Alert type="error" title={error} style={{ marginBottom: 16 }} /&gt;}
           &lt;Button type="primary" htmlType="submit" block loading={enviando}&gt;
-            {pideCodigo ? 'Verificar' : 'Entrar'}
+            Entrar
           &lt;/Button&gt;
         &lt;/Form&gt;
       &lt;/Card&gt;
@@ -288,7 +285,7 @@ export function Login() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-11-19T03:42:59.589Z
+                at 2026-11-23T01:54:10.963Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
